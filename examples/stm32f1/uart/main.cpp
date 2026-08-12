@@ -57,7 +57,7 @@ int main() {
 
   BoardConfig::apply();
 
-  // LogUart::write("sdfsdfs");
+  LogUart::write("Hello world!\n");
 
   while (true) {
   }
