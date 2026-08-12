@@ -1,0 +1,108 @@
+USART*:
+  RxNotEmpty:
+    status: RXNE
+    enable: RXNEIE
+    clear: ReadSR_DR
+    data: DR
+
+  TxEmpty:
+    status: TXE
+    enable: TXEIE
+
+  TransmissionComplete:
+    status: TC
+    enable: TCIE
+    clear: WriteTC0
+
+  Idle:
+    status: IDLE
+    enable: IDLEIE
+    clear: ReadSR_DR_NoData
+    data: DR
+
+  ParityError:
+    status: PE
+    enable: PEIE
+    clear: ReadSR_DR_NoData
+    data: DR
+
+  Error:
+    status:
+      - FE
+      - NE
+      - ORE
+    enable: EIE
+    clear: ReadSR_DR_NoData
+    data: DR
+
+SPI*:
+  RxNotEmpty:
+    status: RXNE
+    enable: RXNEIE
+
+  TxEmpty:
+    status: TXE
+    enable: TXEIE
+
+  Error:
+    status:
+      - OVR
+      - MODF
+      - CRCERR
+    enable: ERRIE
+
+I2C*:
+  Event:
+    status:
+      - SB
+      - ADDR
+      - BTF
+      - STOPF
+      - RXNE
+      - TXE
+    enable: ITEVTEN
+
+  Buffer:
+    status:
+      - RXNE
+      - TXE
+    enable: ITBUFEN
+
+  Error:
+    status:
+      - BERR
+      - ARLO
+      - AF
+      - OVR
+      - PECERR
+      - TIMEOUT
+    enable: ITERREN
+
+TIM*:
+  Update:
+    status: UIF
+    enable: UIE
+
+  CaptureCompare1:
+    status: CC1IF
+    enable: CC1IE
+
+  CaptureCompare2:
+    status: CC2IF
+    enable: CC2IE
+
+  CaptureCompare3:
+    status: CC3IF
+    enable: CC3IE
+
+  CaptureCompare4:
+    status: CC4IF
+    enable: CC4IE
+
+  Trigger:
+    status: TIF
+    enable: TIE
+
+  Break:
+    status: BIF
+    enable: BIE

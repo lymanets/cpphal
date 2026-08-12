@@ -1,0 +1,27 @@
+#pragma once
+
+#pragma once
+
+#include <mmio/field.hpp>
+
+namespace {{ namespace }} {
+
+namespace {{ peripheral.name }} {
+
+{% for register in peripheral.registers %}
+struct {{ register.name }}
+{
+{% for field in register.fields %}
+    inline static constexpr mmio::Field<
+        {{ peripheral.name }}::{{ register.name }},
+        {{ field.offset }},
+        {{ field.width }}>
+        {{ field.name }}{};
+{% endfor %}
+};
+
+{% endfor %}
+
+}
+
+}

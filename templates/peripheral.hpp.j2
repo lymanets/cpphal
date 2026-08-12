@@ -1,0 +1,135 @@
+#pragma once
+
+#include <mmio/register.hpp>
+#include <mmio/field.hpp>
+#include <mmio/access.hpp>
+#include <hal/core/peripheral.hpp>
+#include <hal/core/signal.hpp>
+#include <hal/core/event.hpp>
+#include <hal/core/traits.hpp>
+{% if ctx.clock_tag %}
+#include <hal/rcc/tags.hpp>
+{% endif %}
+{% if ctx.clock_register %}
+#include <hal/rcc/clock.hpp>
+{% endif %}
+{% if ctx.is_gpio %}
+#include <hal/gpio/policy.hpp>
+{% else %}
+#include <hal/gpio/pin_def.hpp>
+{% endif %}
+{% if not ctx.is_rcc %}
+#include <rcc.hpp>
+{% endif %}
+{% if ctx.is_uart %}
+#include <hal/uart/events.hpp>
+{% endif %}
+
+{% for port in ctx.gpio_inc %}
+#include <gpio{{ port }}.hpp>
+{% endfor %}
+
+namespace {{ namespace }} {
+
+struct {{ ctx.peripheral.name }} : hal::core::Peripheral<{{ ctx.peripheral.name }}, 0x{{ "%08X"|format(ctx.peripheral.base_address) }}>
+{
+{% if ctx.gpio_policy %}
+    using gpio_policy = hal::gpio::{{ ctx.gpio_policy }};
+{% endif %}
+{% if ctx.clock_tag %}
+    using clock_tag = hal::rcc::tags::{{ ctx.clock_tag }};
+{% endif %}
+{% if ctx.clock_register %}
+    using clock = hal::rcc::Clock<RCC::{{ ctx.clock_register }}, {{ ctx.clock_bit }}>;
+{% endif %}
+{% if ctx.reset_register %}
+    using reset_controller = RCC;
+    static constexpr unsigned reset_bit = {{ ctx.reset_bit }};
+{% endif %}
+{% if ctx.irq_number is not none %}
+    static constexpr int irq_number = {{ ctx.irq_number }};
+{% endif %}
+{% for register in ctx.peripheral.registers %}
+    struct {{ register.name }} : mmio::Register<{{ ctx.peripheral.name }}, 0x{{ "%X"|format(register.address_offset) }}> {
+        {% if register.fields|length != 1 %}
+        {% for field in register.fields %}
+        using {{ field.name }}{% if field.name == register.name %}_FIELD{% endif %} = mmio::Field<{{ register.name }}, {{ field.bit_offset }}, {{ field.bit_width }}, mmio::Access::{{ ctx.get_access(field.access) }}>;
+        {% endfor %}
+        {% endif %}
+    };
+{% endfor %}
+{% if ctx.is_gpio %}
+    //template<uint8_t N, class C>
+    //using Pin = hal::gpio::Pin<{{ ctx.peripheral.name }}, N, C>;
+{% else %}
+{% if not ctx.is_rcc  %}
+{% if ctx.signals  %}
+    //struct signals {
+    //{% for signal in ctx.signals %}
+    //    using {{ signal.name }} = hal::core::Signal<{{ ctx.peripheral.name }}, hal::core::SignalKind::{{ signal.name }}, hal::gpio::PinDef<hal::gpio::port::{{ signal.port }}, {{ signal.pin }}, hal::gpio::config::{{ signal.config }}>>;
+    //{% endfor %}
+    //};
+    using signal_map = meta::mp_list<
+    {% for signal in ctx.signals %}
+      meta::mp_list<hal::core::SignalType<hal::core::SignalKind::{{ signal.name }}>, hal::core::Signal<{{ ctx.peripheral.name }}, hal::core::SignalKind::{{ signal.name }}, hal::gpio::PinDef<hal::gpio::port::{{ signal.port }}, {{ signal.pin }}, hal::gpio::config::{{ signal.config }}>>>{{ "," if not loop.last }}
+    {% endfor %}
+    >;
+{% endif %}
+{% if ctx.events  %}
+    struct events {
+    {% for event in ctx.events %}
+        using {{ event.name }} = hal::core::Event<hal::core::clear_policy::{{ event.clear_policy }}, {{ event.enable_bit }}, {{ event.data_bit }}, {{ event.status_bit | join(', ') }}>;
+    {% endfor %}
+    };
+    {% if ctx.is_uart %}
+    using event_map = meta::mp_list<
+    {% for event in ctx.events %}
+    meta::mp_list<
+        hal::{{ ctx.event_namespace }}::events::{{ event.name }},
+        events::{{ event.name }}
+    >{{ "," if not loop.last }}
+    {% endfor %}
+    >;
+    {% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
+};
+
+}
+
+{% if ctx.is_gpio %}
+namespace hal::gpio::port
+{
+  struct {{ ctx.peripheral.name[4:] }} {};
+}
+
+namespace hal
+{
+  template<>
+  struct traits<gpio::port::{{ ctx.peripheral.name[4:] }}> {
+    using peripheral = mcu::{{ ctx.peripheral.name }};
+    using policy = hal::gpio::{{ ctx.gpio_policy }};
+  };
+}
+{% endif %}
+
+{% if ctx.is_uart %}
+namespace hal
+{
+  template<>
+  struct traits<uart::tag<{{ ctx.peripheral.name[-1:] }}>> {
+    using peripheral = mcu::{{ ctx.peripheral.name }};
+  };
+}
+{% endif %}
+
+{% if ctx.is_spi %}
+namespace hal
+{
+  template<>
+  struct traits<spi::tag<{{ ctx.peripheral.name[-1:] }}>> {
+    using peripheral = mcu::{{ ctx.peripheral.name }};
+  };
+}
+{% endif %}

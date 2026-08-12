@@ -1,0 +1,70 @@
+signals:
+  # USART / UART
+  TX:
+    config: AlternatePushPull
+  RX:
+    config: Input
+  CTS:
+    config: Input
+  RTS:
+    config: AlternatePushPull
+  CK:
+    config: AlternatePushPull
+
+  # SPI / I2S
+  SCK:
+    config: AlternatePushPull
+  MOSI:
+    config: AlternatePushPull
+  MISO:
+    config: Input
+  NSS:
+    config: AlternatePushPull
+  WS:
+    config: AlternatePushPull
+  CKIN:
+    config: Input
+  MCK:
+    config: AlternatePushPull
+  SD:
+    config: AlternatePushPull
+
+  # I2C
+  SCL:
+    config: AlternateOpenDrain
+  SDA:
+    config: AlternateOpenDrain
+  SMBA*:
+    config: AlternateOpenDrain
+
+  # CAN
+  CANTX:
+    config: AlternatePushPull
+  CANRX:
+    config: Input
+
+  # Timer
+  CH*:
+    config: AlternatePushPull
+  CH*N:
+    config: AlternatePushPull
+  ETR:
+    config: Input
+  BKIN:
+    config: Input
+
+  # USB
+  DM:
+    config: Alternate
+  DP:
+    config: Alternate
+  SOF:
+    config: Alternate
+
+  # SDIO
+  CMD:
+    config: AlternatePushPull
+  D*:
+    config: AlternatePushPull
+  CLK:
+    config: AlternatePushPull

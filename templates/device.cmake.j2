@@ -1,0 +1,72 @@
+#------------------------------------------------------------------------------
+# Auto-generated.
+# Device: {{ ctx.device.name }}
+# Vendor: {{ ctx.device.vendor }}
+#------------------------------------------------------------------------------
+
+set(HAL_DEVICE_NAME "{{ ctx.device.name }}")
+set(HAL_DEVICE_VENDOR "{{ ctx.device.vendor }}")
+
+#------------------------------------------------------------------------------
+# CPU
+#------------------------------------------------------------------------------
+
+set(HAL_CPU "{{ ctx.get_cpu_name() }}")
+set(HAL_FPU "{{ ctx.device.cpu.fpu }}")
+set(HAL_FLOAT_ABI "{{ ctx.device.cpu.float_abi }}")
+
+#------------------------------------------------------------------------------
+# Preprocessor definitions
+#------------------------------------------------------------------------------
+
+set(HAL_COMPILE_DEFINITIONS
+{% for define in compile_definitions %}
+    {{ define }}
+{% endfor %}
+)
+
+#------------------------------------------------------------------------------
+# Generated headers
+#------------------------------------------------------------------------------
+
+set(HAL_INCLUDE_DIRECTORIES
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+)
+
+#------------------------------------------------------------------------------
+# Startup / Linker
+#------------------------------------------------------------------------------
+
+set(HAL_STARTUP
+    "${CMAKE_CURRENT_LIST_DIR}/vectors.cpp"
+)
+
+set(HAL_LINKER_SCRIPT
+    "${CMAKE_CURRENT_LIST_DIR}/linker.ld"
+)
+
+#------------------------------------------------------------------------------
+# Architecture options
+#------------------------------------------------------------------------------
+
+set(HAL_COMPILE_OPTIONS
+    -mcpu={{ ctx.get_cpu_name() }}
+    -mthumb
+{% if ctx.device.cpu.fpu %}
+    -mfpu={{ ctx.device.cpu.fpu }}
+{% endif %}
+{% if ctx.device.cpu.float_abi %}
+    -mfloat-abi={{ ctx.device.cpu.float_abi }}
+{% endif %}
+)
+
+set(HAL_LINK_OPTIONS
+    -mcpu={{ ctx.get_cpu_name() }}
+    -mthumb
+{% if ctx.device.cpu.fpu %}
+    -mfpu={{ ctx.device.cpu.fpu }}
+{% endif %}
+{% if ctx.device.cpu.float_abi %}
+    -mfloat-abi={{ ctx.device.cpu.float_abi }}
+{% endif %}
+)

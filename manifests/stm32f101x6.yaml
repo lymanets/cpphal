@@ -1,0 +1,351 @@
+name: stm32f101x6
+svd: STM32F101.svd
+peripherals:
+- TIM2
+- TIM3
+- RTC
+- WWDG
+- IWDG
+- USART2
+- I2C1
+- BKP
+- PWR
+- AFIO
+- EXTI
+- GPIOA
+- GPIOB
+- GPIOC
+- GPIOD
+- ADC1
+- ADC1_COMMON
+- SPI1
+- USART1
+- DMA1
+- DMA1_Channel1
+- DMA1_Channel2
+- DMA1_Channel3
+- DMA1_Channel4
+- DMA1_Channel5
+- DMA1_Channel6
+- DMA1_Channel7
+- RCC
+- CRC
+- FLASH
+- OB
+- DBGMCU
+interrupts:
+    0:
+    - WWDG
+    1:
+    - PVD
+    2:
+    - TAMPER
+    3:
+    - RTC
+    4:
+    - FLASH
+    5:
+    - RCC
+    6:
+    - EXTI0
+    7:
+    - EXTI1
+    8:
+    - EXTI2
+    9:
+    - EXTI3
+    10:
+    - EXTI4
+    11:
+    - DMA1_Channel1
+    12:
+    - DMA1_Channel2
+    13:
+    - DMA1_Channel3
+    14:
+    - DMA1_Channel4
+    15:
+    - DMA1_Channel5
+    16:
+    - DMA1_Channel6
+    17:
+    - DMA1_Channel7
+    18:
+    - ADC1
+    23:
+    - EXTI9_5
+    28:
+    - TIM2
+    29:
+    - TIM3
+    31:
+    - I2C1_EV
+    32:
+    - I2C1_ER
+    35:
+    - SPI1
+    37:
+    - USART1
+    38:
+    - USART2
+    40:
+    - EXTI15_10
+    41:
+    - RTC_Alarm
+af:
+    PC13:
+        functions: []
+        remap: []
+    PC14:
+        functions:
+        -   peripheral: OSC32
+            signal: IN
+        remap: []
+    PC15:
+        functions:
+        -   peripheral: OSC32
+            signal: OUT
+        remap: []
+    PC0:
+        functions:
+        -   peripheral: ADC
+            signal: IN10
+        remap: []
+    PC1:
+        functions:
+        -   peripheral: ADC
+            signal: IN11
+        remap: []
+    PC2:
+        functions:
+        -   peripheral: ADC
+            signal: IN12
+        remap: []
+    PC3:
+        functions:
+        -   peripheral: ADC
+            signal: IN13
+        remap: []
+    PA0:
+        functions:
+        -   peripheral: USART2
+            signal: CTS
+        -   peripheral: ADC
+            signal: IN0
+        remap: []
+    PA1:
+        functions:
+        -   peripheral: USART2
+            signal: RTS
+        -   peripheral: ADC
+            signal: IN1
+        -   peripheral: TIM2
+            signal: CH2
+        remap: []
+    PA2:
+        functions:
+        -   peripheral: USART2
+            signal: TX
+        -   peripheral: ADC
+            signal: IN2
+        -   peripheral: TIM2
+            signal: CH3
+        remap: []
+    PA3:
+        functions:
+        -   peripheral: USART2
+            signal: RX
+        -   peripheral: ADC
+            signal: IN3
+        -   peripheral: TIM2
+            signal: CH4
+        remap: []
+    PA4:
+        functions:
+        -   peripheral: SPI
+            signal: NSS
+        -   peripheral: ADC
+            signal: IN4
+        -   peripheral: USART2
+            signal: CK
+        remap: []
+    PA5:
+        functions:
+        -   peripheral: SPI
+            signal: SCK
+        -   peripheral: ADC
+            signal: IN5
+        remap: []
+    PA6:
+        functions:
+        -   peripheral: SPI
+            signal: MISO
+        -   peripheral: ADC
+            signal: IN6
+        -   peripheral: TIM3
+            signal: CH1
+        remap: []
+    PA7:
+        functions:
+        -   peripheral: SPI
+            signal: MOSI
+        -   peripheral: ADC
+            signal: IN7
+        -   peripheral: TIM3
+            signal: CH2
+        remap: []
+    PC4:
+        functions:
+        -   peripheral: ADC
+            signal: IN14
+        remap: []
+    PC5:
+        functions:
+        -   peripheral: ADC
+            signal: IN15
+        remap: []
+    PB0:
+        functions:
+        -   peripheral: ADC
+            signal: IN8
+        -   peripheral: TIM3
+            signal: CH3
+        remap: []
+    PB1:
+        functions:
+        -   peripheral: ADC
+            signal: IN9
+        -   peripheral: TIM3
+            signal: CH4
+        remap: []
+    PB10:
+        functions: []
+        remap:
+        -   peripheral: TIM2
+            signal: CH3
+    PB11:
+        functions: []
+        remap:
+        -   peripheral: TIM2
+            signal: CH4
+    PC6:
+        functions: []
+        remap:
+        -   peripheral: TIM3
+            signal: CH1
+    PC7:
+        functions: []
+        remap:
+        -   peripheral: TIM3
+            signal: CH2
+    PC8:
+        functions: []
+        remap:
+        -   peripheral: TIM3
+            signal: CH3
+    PC9:
+        functions: []
+        remap:
+        -   peripheral: TIM3
+            signal: CH4
+    PA8:
+        functions:
+        -   peripheral: USART1
+            signal: CK
+        remap: []
+    PA9:
+        functions:
+        -   peripheral: USART1
+            signal: TX
+        remap: []
+    PA10:
+        functions:
+        -   peripheral: USART1
+            signal: RX
+        remap: []
+    PA11:
+        functions:
+        -   peripheral: USART1
+            signal: CTS
+        remap: []
+    PA12:
+        functions:
+        -   peripheral: USART1
+            signal: RTS
+        remap: []
+    PA13:
+        functions: []
+        remap: []
+    PA14:
+        functions: []
+        remap: []
+    PA15:
+        functions: []
+        remap:
+        -   peripheral: SPI
+            signal: NSS
+    PD2:
+        functions:
+        -   peripheral: TIM3
+            signal: ETR
+        remap: []
+    PB3:
+        functions: []
+        remap:
+        -   peripheral: TIM2
+            signal: CH2PB3
+        -   peripheral: SPI
+            signal: SCK
+    PB4:
+        functions: []
+        remap:
+        -   peripheral: TIM3
+            signal: CH1PB4
+        -   peripheral: SPI
+            signal: MISO
+    PB5:
+        functions:
+        -   peripheral: I2C
+            signal: SMBA
+        remap:
+        -   peripheral: TIM3
+            signal: CH2
+        -   peripheral: SPI
+            signal: MOSI
+    PB6:
+        functions:
+        -   peripheral: I2C
+            signal: SCL
+        remap:
+        -   peripheral: USART1
+            signal: TX
+    PB7:
+        functions:
+        -   peripheral: I2C
+            signal: SDA
+        remap:
+        -   peripheral: USART1
+            signal: RX
+    PB8:
+        functions: []
+        remap:
+        -   peripheral: I2C
+            signal: SCL
+    PB9:
+        functions: []
+        remap:
+        -   peripheral: I2C
+            signal: SDA
+freq:
+    sysclk: 36
+    apb1: 36
+    apb2: 36
+memory:
+-   name: FLASH
+    origin: 134217728
+    length: 32K
+    attributes: rx
+-   name: RAM
+    origin: 536870912
+    length: 6K
+    attributes: rwx

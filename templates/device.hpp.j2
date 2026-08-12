@@ -1,0 +1,29 @@
+#pragma once
+
+#include <cstdint>
+
+#define __{{ device.cpu.name.value }}_REV                  {{ cpu_rev }}U  /*!< Core Revision {{ device.cpu.revision }}                           */
+#define __MPU_PRESENT              {{ device.cpu.mpu_present | int }}U       /*!< Other STM32 devices does not provide an MPU  */
+#define __NVIC_PRIO_BITS           {{ device.cpu.nvic_prio_bits | int }}U       /*!< STM32 uses 4 Bits for the Priority Levels    */
+#define __Vendor_SysTickConfig     {{ device.cpu.vendor_systick_config | int }}U       /*!< Set to 1 if different SysTick Config is used */
+
+#define IRQn_Type int32_t
+#define SysTick_IRQn -1
+
+#include <cmsis/core_{{ cpu_header }}.h>
+
+{% for peripheral in device.peripherals %}
+#include "{{ peripheral.name | lower }}.hpp"
+{% endfor %}
+
+namespace {{ namespace }}::policy {
+
+struct {{ device_family }}Policy {
+{% for freq in freqs %}
+  static constexpr std::uint32_t max_{{ freq.name }} = {{ freq.value }};
+{% endfor %}
+};
+
+using value = {{ device_family }}Policy;
+
+}

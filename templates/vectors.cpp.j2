@@ -1,0 +1,56 @@
+//------------------------------------------------------------------------------
+// Auto-generated.
+// Device: {{ device_name }}
+//------------------------------------------------------------------------------
+
+#include <cstdint>
+
+#include "runtime/handlers.hpp"
+
+extern "C"
+{
+
+void _init() {
+}
+
+extern std::uintptr_t _estack;
+
+{% for irq in vectors %}
+{% if irq %}
+void {{ irq }}_IRQHandler() __attribute__((weak, alias("Default_Handler")));
+{% endif %}
+{% endfor %}
+
+using Vector = const void *;
+
+[[gnu::used]]
+[[gnu::section(".isr_vector")]]
+const Vector g_pfnVectors[] =
+{
+    &_estack,
+
+    reinterpret_cast<Vector>(Reset_Handler),
+    reinterpret_cast<Vector>(NMI_Handler),
+    reinterpret_cast<Vector>(HardFault_Handler),
+    reinterpret_cast<Vector>(MemManage_Handler),
+    reinterpret_cast<Vector>(BusFault_Handler),
+    reinterpret_cast<Vector>(UsageFault_Handler),
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    reinterpret_cast<Vector>(SVC_Handler),
+    reinterpret_cast<Vector>(DebugMon_Handler),
+    nullptr,
+    reinterpret_cast<Vector>(PendSV_Handler),
+    reinterpret_cast<Vector>(SysTick_Handler),
+
+{% for irq in vectors %}
+{% if irq %}
+    reinterpret_cast<Vector>({{ irq }}_IRQHandler),
+{% else %}
+    nullptr,
+{% endif %}
+{% endfor %}
+};
+}

@@ -1,0 +1,7 @@
+cmsis-svd
+jinja2
+click
+pyyaml
+pdfplumber
+pymupdf
+beautifulsoup4
