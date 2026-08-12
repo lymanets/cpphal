@@ -59,7 +59,7 @@ private:
   template <class T>
   struct clock_mask_traits {
     using value_type                  = typename T::reg::value_type;
-    static constexpr value_type value = T::bit;
+    static constexpr value_type value = 1 << T::bit;
   };
 
   template <class Clocks>
