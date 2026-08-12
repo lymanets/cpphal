@@ -13,7 +13,21 @@ extern "C"
 void _init() {
 }
 
-extern std::uintptr_t _estack;
+void Default_Handler() {
+  while (1);
+}
+
+void NMI_Handler() __attribute__((weak, alias("Default_Handler")));
+void HardFault_Handler() __attribute__((weak, alias("Default_Handler")));
+void MemManage_Handler() __attribute__((weak, alias("Default_Handler")));
+void BusFault_Handler() __attribute__((weak, alias("Default_Handler")));
+void UsageFault_Handler()__attribute__((weak, alias("Default_Handler")));
+void SVC_Handler() __attribute__((weak, alias("Default_Handler")));
+void DebugMon_Handler() __attribute__((weak, alias("Default_Handler")));
+void PendSV_Handler() __attribute__((weak, alias("Default_Handler")));
+void SysTick_Handler() __attribute__((weak, alias("Default_Handler")));
+
+extern std::uint32_t _estack;
 
 {% for irq in vectors %}
 {% if irq %}
