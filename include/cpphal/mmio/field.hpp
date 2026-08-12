@@ -31,11 +31,11 @@ struct Field {
   }
 
   static void set() {
-    Register::modify(mask, 1);
+    Register::modify(mask, encode(1));
   }
 
   static void reset() {
-    Register::modify(mask, 0);
+    Register::modify(mask, encode(0));
   }
 
   static void wait()
