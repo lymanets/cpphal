@@ -20,8 +20,8 @@ private:
 public:
   static_assert(
       meta::mp_count<
-        meta::mp_transform_q<get_tag<tags::Baud>, options_t>,
-        tags::Baud>::value == 1,
+        meta::mp_transform_q<get_tag<tags::BaudRate>, options_t>,
+        tags::BaudRate>::value == 1,
       "Exactly one Baud<> must be specified.");
 
   static_assert(

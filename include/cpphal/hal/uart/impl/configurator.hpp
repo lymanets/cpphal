@@ -16,7 +16,7 @@ template <class Peripheral, class Config>
 struct Basic {
   using peripheral = Peripheral;
 
-  using baud      = typename Config::template get<tags::Baud>;
+  using baud      = typename Config::template get<tags::BaudRate>;
   using databits  = typename Config::template get<tags::DataBits>;
   using stopbits  = typename Config::template get<tags::StopBits>;
   using parity    = typename Config::template get<tags::Parity>;
