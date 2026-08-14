@@ -1,4 +1,4 @@
-from .base import BaseRenderer
+from scripts.renderers.base import BaseRenderer
 import re
 
 def cmsis_cpu_revision(revision: str) -> int:
@@ -11,7 +11,7 @@ def cmsis_cpu_revision(revision: str) -> int:
     return (r << 8) | p
 
 class DeviceRenderer(BaseRenderer):
-    template_name="device.hpp.j2"
+    template_name="headers/device.hpp.j2"
 
     def render_device(self, device, freq: dict, namespace, irq_count, memory, output):
         freqs = [{"name": k, "value": freq[k] * 1000000} for k in freq.keys()]

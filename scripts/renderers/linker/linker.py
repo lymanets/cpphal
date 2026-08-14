@@ -1,7 +1,7 @@
-from .base import BaseRenderer
+from scripts.renderers.base import BaseRenderer
 
 class LinkerRenderer(BaseRenderer):
-    template_name="linker.ld.j2"
+    template_name="linker/linker.ld.j2"
 
     def render_linker(self, memory, output):
         ram_end = None

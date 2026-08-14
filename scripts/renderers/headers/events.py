@@ -1,7 +1,7 @@
-from .base import BaseRenderer
+from scripts.renderers.base import BaseRenderer
 
 class EventsRenderer(BaseRenderer):
-    template_name="events.hpp.j2"
+    template_name="headers/events.hpp.j2"
 
     def render_events(self, events, output):
         for name, options in events.items():
