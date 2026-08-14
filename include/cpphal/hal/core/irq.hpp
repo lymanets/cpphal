@@ -5,15 +5,11 @@
 namespace hal::irq {
 using IRQHandlerFn = void (*)();
 
-template <IRQn_Type IRQNumber>
+template <IRQn_Type IRQNumber, IRQHandlerFn Handler, bool Enabled>
 struct Binding {
-  static void apply(IRQHandlerFn irq_handler) {
-    NVIC_SetVector(
-        IRQNumber,
-        reinterpret_cast<uint32_t>(&irq_handler)
-        );
-    NVIC_EnableIRQ(IRQNumber);
-  }
+  static constexpr IRQn_Type    irq_number = IRQNumber;
+  static constexpr IRQHandlerFn handler    = Handler;
+  static constexpr bool         enabled    = Enabled;
 
   static void enable_irq() {
     NVIC_EnableIRQ(IRQNumber);

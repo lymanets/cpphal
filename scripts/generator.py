@@ -3,7 +3,7 @@ from cmsis_svd import SVDParser
 from .context import GenerationContext
 from .builder import make_context
 from .renderer import create_environment
-from .renderers import DeviceRenderer, PeripheralRenderer, DeviceCmakeRenderer, VectorsRenderer, LinkerRenderer
+from .renderers import DeviceRenderer, PeripheralRenderer, DeviceCmakeRenderer, LinkerRenderer
 import yaml
 import os
 import shutil
@@ -26,23 +26,20 @@ def generate(configs, manifest, svd_dir, output, namespace):
     inc_output = output/"include/"
     peripherals = manifest["peripherals"]
     interrupts = manifest["interrupts"]
+    irq_count = max(list(interrupts.keys()))
     device.peripherals = [p for p in device.peripherals if p.name in peripherals]
     DeviceRenderer(env).render_device(
         device,
         manifest["freq"],
         namespace,
+        irq_count,
+        manifest["memory"],
         inc_output,
     )
 
     DeviceCmakeRenderer(env).render_device(
         gen,
         namespace,
-        output,
-    )
-
-    VectorsRenderer(env).render_vectors(
-        device,
-        interrupts,
         output,
     )
 

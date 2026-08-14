@@ -51,7 +51,6 @@ private:
     }
   };
 
-  using irq_binding  = irq::Binding<Peripheral::irq_number>;
   using configurator = impl::Configurator<mcu::policy::value, Peripheral, BasicConfig, AdvancedConfig>;
 
   static void irq_handler() {
@@ -79,13 +78,16 @@ private:
   static_assert(!std::is_same_v<signals_type_pair, void>, "Unsupported Signal");
 
 public:
+  using irq_binding = irq::Binding<Peripheral::irq_number,
+                                   irq_handler,
+                                   !meta::mp_empty<typename configurator::advanced::events>::value>;
   using signals = core::resolve_signals_t<Peripheral, signals_type_pair>;
 
   template <class ClockConfig>
   static void apply() {
     configurator::template apply<ClockConfig>();
-    if constexpr (!meta::mp_empty<typename configurator::advanced::events>::value) {
-      irq_binding::apply(irq_handler);
+    if constexpr (irq_binding::enabled) {
+      irq_binding::enable_irq();
     }
   }
 };
