@@ -1,6 +1,7 @@
 #pragma once
 #include "configurator.hpp"
 #include "hal/rcc/config.hpp"
+#include "hal/rcc/init/init.hpp"
 
 namespace hal {
 /*
@@ -27,6 +28,7 @@ struct SystemConfigurator {
   using OptionHolder = core::OptionHolder<Configs...>;
 
   static void apply() {
+    SystemInit<Policy>();
     using Tree = rcc::Solver<Policy, Configs...>;
     rcc::Configurator<Policy, Tree>::apply();
   }

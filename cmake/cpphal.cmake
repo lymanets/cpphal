@@ -12,15 +12,17 @@ generate_device(${__lib_root}/configs ${__lib_root}/manifests/${__header}.yaml $
 
 include(${CMAKE_CURRENT_LIST_DIR}/hal_configure.cmake)
 
-function(cpphal_create target sources)
-    add_executable(${target} ${sources} ${__lib_root}/src/cpphal/reset_handler.cpp ${HAL_STARTUP})
+function(cpphal_create TARGET SRCS FLASH_BASE VECT_TAB_OFFSET)
+    add_executable(${TARGET} ${SRCS} ${__lib_root}/src/cpphal/reset_handler.cpp)
 
-    hal_configure_target(${target} -Os)
+    hal_configure_target(${TARGET} -Os)
 
-    target_include_directories(${target} PRIVATE ${CMAKE_SOURCE_DIR}/include/cpphal)
-    target_link_libraries(${target} PRIVATE cpphal)
+    target_include_directories(${TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/include/cpphal)
+    target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(${TARGET} PRIVATE cpphal)
+    target_compile_definitions(${TARGET} PRIVATE ${MCU_TARGET} FLASH_BASE=${FLASH_BASE} VECT_TAB_OFFSET=${VECT_TAB_OFFSET})
 
-    generate_ast(${target})
+    generate_ast(${TARGET})
 
     set(GENERATED_VECTOR_CPP ${CMAKE_CURRENT_BINARY_DIR}/generated/hal_vector_table.cpp)
 
