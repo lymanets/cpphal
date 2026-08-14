@@ -2,20 +2,23 @@ uart:
   namespace: uart
 
   options:
-    - name: Baud
+    - name: BaudRate
       kind: value
       type: std::uint32_t
-      tag: Baud
+      tag: BaudRate
+      default: 115200
 
     - name: DataBits
       kind: value
       type: std::uint8_t
       tag: DataBits
+      default: 8
 
     - name: StopBits
       kind: value
       type: auto
       tag: StopBits
+      default: 1
 
     - name: parity
       kind: enum
@@ -64,11 +67,13 @@ spi:
       kind: value
       type: std::uint32_t
       tag: Baud
+      default: 9_MHz
 
     - name: DataBits
       kind: value
       type: std::uint8_t
       tag: DataBits
+      default: 8
 
     - name: mode
       kind: enum

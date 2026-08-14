@@ -34,7 +34,7 @@ using GpioConfig = hal::gpio::Configurator<
 using LogUart = hal::uart::Driver<
   1,
   hal::uart::Basic<
-    hal::uart::options::Baud<115200>,
+    hal::uart::options::BaudRate<115200>,
     hal::uart::options::DataBits<8>,
     hal::uart::options::StopBits<1>,
     hal::uart::options::parity::None,

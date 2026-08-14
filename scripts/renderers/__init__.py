@@ -7,3 +7,4 @@ from scripts.renderers.linker.linker import LinkerRenderer
 from scripts.renderers.headers.options import OptionsRenderer
 from scripts.renderers.headers.tags import TagsRenderer
 from scripts.renderers.headers.events import EventsRenderer
+from scripts.renderers.docs import DocsRenderer
