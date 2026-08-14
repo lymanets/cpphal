@@ -14,8 +14,11 @@ include(${CMAKE_CURRENT_LIST_DIR}/hal_configure.cmake)
 
 function(cpphal_create TARGET SRCS FLASH_BASE VECT_TAB_OFFSET)
     add_executable(${TARGET} ${SRCS} ${__lib_root}/src/cpphal/reset_handler.cpp)
-
-    hal_configure_target(${TARGET} -Os)
+    set(__args -Os)
+    if (WITH_DEBUG_INFO)
+        set(__args -g -Og)
+    endif ()
+    hal_configure_target(${TARGET} ${__args})
 
     target_include_directories(${TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/include/cpphal)
     target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
