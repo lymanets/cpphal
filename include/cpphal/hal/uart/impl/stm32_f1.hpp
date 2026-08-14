@@ -182,7 +182,8 @@ public:
   static void write(const uint8_t* data, uint32_t size)
     requires std::same_as<D, options::direction::Tx> || std::same_as<D, options::direction::TxRx> {
     while (size-- > 0) {
-      while (!Peripheral::SR::TXE::read()) { Peripheral::DR::write(*data++); }
+      Peripheral::DR::write(*data++);
+      while (!Peripheral::SR::TXE::read());
     }
   }
 };
