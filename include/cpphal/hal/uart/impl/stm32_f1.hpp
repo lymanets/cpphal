@@ -106,7 +106,7 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
     using direction_bits = meta::mp_second<direction_bits_pair>;
 
     return Peripheral::CR1::PCE::encode(std::is_same_v<typename basic::parity, options::parity::None> ? 0 : 1)
-           | Peripheral::CR1::PS::encode(std::is_same_v<typename basic::parity, options::parity::Even> ? 0 : 1)
+           | Peripheral::CR1::PS::encode(std::is_same_v<typename basic::parity, options::parity::Odd> ? 1 : 0)
            | Peripheral::CR1::M::encode(basic::databits::value == 8 ? 0 : 1)
            | Peripheral::CR1::TE::encode(direction_bits::te)
            | Peripheral::CR1::RE::encode(direction_bits::re)
