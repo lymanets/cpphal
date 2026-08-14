@@ -4,3 +4,6 @@ from .peripheral import PeripheralRenderer
 from .register import RegisterRenderer
 from .device_cmake import DeviceCmakeRenderer
 from .linker import LinkerRenderer
+from .options import OptionsRenderer
+from .tags import TagsRenderer
+from .events import EventsRenderer

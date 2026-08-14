@@ -5,7 +5,8 @@
 #include "hal/core/configurator.hpp"
 #include "hal/core/irq.hpp"
 
-#include "options.hpp"
+#include "hal/spi/options.hpp"
+#include "hal/spi/events.hpp"
 #include "advanced_config.hpp"
 
 #include "impl/stm32_f1.hpp"

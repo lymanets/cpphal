@@ -1,0 +1,8 @@
+#pragma once
+
+namespace hal::{{ namespace }}::tags {
+{% for option in options %}
+struct {{ option.tag }} {
+};
+{% endfor %}
+}

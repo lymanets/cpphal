@@ -3,7 +3,7 @@ from cmsis_svd import SVDParser
 from .context import GenerationContext
 from .builder import make_context
 from .renderer import create_environment
-from .renderers import DeviceRenderer, PeripheralRenderer, DeviceCmakeRenderer, LinkerRenderer
+from .renderers import DeviceRenderer, PeripheralRenderer, DeviceCmakeRenderer, OptionsRenderer, TagsRenderer, EventsRenderer, LinkerRenderer
 import yaml
 import os
 import shutil
@@ -16,6 +16,7 @@ def generate(configs, manifest, svd_dir, output, namespace):
     manifest = __load_yaml(manifest)
     signals_config = __load_yaml(configs/"signal.yaml")
     event_config = __load_yaml(configs/"event.yaml")
+    peripheral_options = __load_yaml(configs/"peripheral.yaml")
     svd = manifest["svd"]
     device = SVDParser.for_xml_file(f"{svd_dir}/{svd[:7]}/{svd}").get_device()
     gen = GenerationContext.from_device(device)
@@ -40,6 +41,21 @@ def generate(configs, manifest, svd_dir, output, namespace):
     DeviceCmakeRenderer(env).render_device(
         gen,
         namespace,
+        output,
+    )
+
+    OptionsRenderer(env).render_options(
+        peripheral_options,
+        output,
+    )
+
+    TagsRenderer(env).render_tags(
+        peripheral_options,
+        output,
+    )
+
+    EventsRenderer(env).render_events(
+        event_config,
         output,
     )
 
