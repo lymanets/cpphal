@@ -5,7 +5,9 @@
 using namespace hal::literals;
 
 struct RxNotEmptyHandler {
+  template <class Driver>
   static void run(std::uint8_t byte) {
+    Driver::write(byte);
   }
 };
 

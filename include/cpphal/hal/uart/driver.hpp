@@ -34,11 +34,11 @@ private:
     static void handle_event() {
       if constexpr (std::is_same_v<typename Event::event::policy, core::clear_policy::ReadSR_DR_NoData>) {
         if (Event::event::pending()) {
-          Event::handler::run();
+          Event::handler::template run<Driver>();
         }
       } else if constexpr (std::is_same_v<typename Event::event::policy, core::clear_policy::ReadSR_DR>) {
         if (Event::event::pending()) {
-          Event::handler::run(Event::event::read());
+          Event::handler::template run<Driver>(Event::event::read());
         }
       } else if constexpr (std::is_same_v<typename Event::event::policy, core::clear_policy::WriteTC0>) {
         if (Event::event::pending()) {
@@ -46,7 +46,7 @@ private:
         }
       } else if constexpr (std::is_same_v<typename Event::event::policy, core::clear_policy::None>) {
         if (Event::event::pending()) {
-          Event::handler::run();
+          Event::handler::template run<Driver>();
         }
       }
     }
