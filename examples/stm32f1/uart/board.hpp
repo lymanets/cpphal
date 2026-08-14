@@ -24,17 +24,10 @@ using System = hal::SystemConfigurator<
   hal::rcc::APB2<72_MHz>
 >;
 
-using GpioConfig = hal::gpio::Configurator<
-  PinDef(A, 0, OutputPushPull),
-  PinDef(A, 1, Input),
-  PinDef(A, 2, Input),
-  PinDef(B, 1, Input),
-  PinDef(C, 2, Input),
-  PinDef(B, 2, Input)
->;
+using GpioConfig = hal::gpio::Configurator<>;
 
 using LogUart = hal::uart::Driver<
-  1,
+  2,
   hal::uart::Basic<
     hal::uart::options::BaudRate<115200>,
     hal::uart::options::DataBits<8>,
