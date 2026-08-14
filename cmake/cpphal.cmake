@@ -21,4 +21,23 @@ function(cpphal_create target sources)
     target_link_libraries(${target} PRIVATE cpphal)
 
     generate_ast(${target})
+
+    set(GENERATED_VECTOR_CPP ${CMAKE_CURRENT_BINARY_DIR}/generated/hal_vector_table.cpp)
+
+    add_custom_command(
+            OUTPUT ${GENERATED_VECTOR_CPP}
+
+            COMMAND
+            ${VENV_PYTHON}
+            ${__lib_root}/tools/find_configurator.py
+            --header ${CMAKE_CURRENT_SOURCE_DIR}/board.hpp
+            --output ${GENERATED_VECTOR_CPP}
+            DEPENDS
+            ${CMAKE_CURRENT_SOURCE_DIR}/board.hpp
+
+            VERBATIM
+    )
+
+    target_sources(${TARGET} PRIVATE ${GENERATED_VECTOR_CPP})
+
 endfunction(cpphal_create)
