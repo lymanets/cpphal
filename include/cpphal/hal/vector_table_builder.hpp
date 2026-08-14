@@ -6,7 +6,6 @@
 #include "runtime/handlers.hpp"
 
 namespace hal::irq {
-extern "C" std::uint32_t _estack;
 
 template <class... Bindings>
 struct VectorTableBuilder {
