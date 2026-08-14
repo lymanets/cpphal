@@ -72,7 +72,7 @@ using AlternatePushPull = Config<
   Mode::Alternate,
   Pull::None,
   OutputType::PushPull,
-  Speed::Low,
+  Speed::High,
   Alternate<N>
 >;
 
@@ -81,7 +81,7 @@ using AlternateOpenDrain = Config<
   Mode::Alternate,
   Pull::None,
   OutputType::OpenDrain,
-  Speed::Low,
+  Speed::High,
   Alternate<N>
 >;
 }

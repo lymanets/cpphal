@@ -3,7 +3,7 @@
 
 #include "hal/core/option_holder.hpp"
 
-#include "options.hpp"
+#include "hal/spi/options.hpp"
 
 namespace hal::spi {
 template <class... Options>

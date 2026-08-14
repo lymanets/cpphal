@@ -1,0 +1,108 @@
+uart:
+  namespace: uart
+
+  options:
+    - name: BaudRate
+      kind: value
+      type: std::uint32_t
+      tag: BaudRate
+      default: 115200
+
+    - name: DataBits
+      kind: value
+      type: std::uint8_t
+      tag: DataBits
+      default: 8
+
+    - name: StopBits
+      kind: value
+      type: auto
+      tag: StopBits
+      default: 1
+
+    - name: parity
+      kind: enum
+      tag: Parity
+      option_values:
+        - None
+        - Even
+        - Odd
+
+    - name: direction
+      kind: enum
+      tag: Direction
+      option_values:
+        - Tx
+        - Rx
+        - TxRx
+
+    - name: flow_control
+      kind: enum
+      tag: FlowControl
+      option_values:
+        - None
+        - Rts
+        - Cts
+        - RtsCts
+    
+    - name: Events
+      kind: varargs
+      tag: Events
+
+spi:
+  namespace: spi
+
+  options:
+    - name: direction
+      kind: enum
+      tag: Direction
+      option_values:
+        - FullDuplex
+        - TransmitOnly
+        - ReceiveOnly
+        - HalfDuplexTransmit
+        - HalfDuplexReceive
+
+    - name: Baud
+      kind: value
+      type: std::uint32_t
+      tag: Baud
+      default: 9_MHz
+
+    - name: DataBits
+      kind: value
+      type: std::uint8_t
+      tag: DataBits
+      default: 8
+
+    - name: mode
+      kind: enum
+      tag: Mode
+      option_values:
+        - Master
+        - Slave
+
+    - name: clock_polarity
+      kind: enum
+      tag: ClockPolarity
+      option_values:
+        - Low
+        - High
+
+    - name: clock_phase
+      kind: enum
+      tag: ClockPhase
+      option_values:
+        - FirstEdge
+        - SecondEdge
+
+    - name: bit_order
+      kind: enum
+      tag: BitOrder
+      option_values:
+        - MSBFirst
+        - LSBFirst
+
+    - name: Events
+      kind: varargs
+      tag: Events

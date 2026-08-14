@@ -5,9 +5,9 @@
 #include "hal/core/configurator.hpp"
 #include "hal/core/irq.hpp"
 
-#include "hal/spi/options.hpp"
+#include "hal/uart/options.hpp"
+#include "hal/uart/events.hpp"
 #include "advanced_config.hpp"
-#include "events.hpp"
 
 #include "impl/stm32_f1.hpp"
 
@@ -34,11 +34,11 @@ private:
     static void handle_event() {
       if constexpr (std::is_same_v<typename Event::event::policy, core::clear_policy::ReadSR_DR_NoData>) {
         if (Event::event::pending()) {
-          Event::handler::run();
+          Event::handler::template run<Driver>();
         }
       } else if constexpr (std::is_same_v<typename Event::event::policy, core::clear_policy::ReadSR_DR>) {
         if (Event::event::pending()) {
-          Event::handler::run(Event::event::read());
+          Event::handler::template run<Driver>(Event::event::read());
         }
       } else if constexpr (std::is_same_v<typename Event::event::policy, core::clear_policy::WriteTC0>) {
         if (Event::event::pending()) {
@@ -46,19 +46,13 @@ private:
         }
       } else if constexpr (std::is_same_v<typename Event::event::policy, core::clear_policy::None>) {
         if (Event::event::pending()) {
-          Event::handler::run();
+          Event::handler::template run<Driver>();
         }
       }
     }
   };
 
-  using irq_binding  = irq::Binding<Peripheral::irq_number>;
   using configurator = impl::Configurator<mcu::policy::value, Peripheral, BasicConfig, AdvancedConfig>;
-
-  static void irq_handler() {
-    using handler = meta::mp_apply<EventHandler, typename configurator::advanced::events::value>;
-    handler::handle();
-  }
 
   using SignalsMap = meta::mp_list<
     meta::mp_list<void, meta::mp_list<>>,
@@ -78,14 +72,23 @@ private:
     meta::mp_second<meta::mp_map_find<SignalsMap, typename configurator::advanced::flowcontrol>>>;
   static_assert(!std::is_same_v<signals_type_pair, void>, "Unsupported Signal");
 
+  static void irq_handler() {
+    using handler = meta::mp_apply<EventHandler, typename configurator::advanced::events::value>;
+    handler::handle();
+  }
+
 public:
+  using irq_binding = irq::Binding<Peripheral::irq_number,
+                                   irq_handler,
+                                   !meta::mp_empty<typename configurator::advanced::events::value>::value>;
+
   using signals = core::resolve_signals_t<Peripheral, signals_type_pair>;
 
   template <class ClockConfig>
   static void apply() {
     configurator::template apply<ClockConfig>();
-    if constexpr (!meta::mp_empty<typename configurator::advanced::events>::value) {
-      irq_binding::apply(irq_handler);
+    if constexpr (irq_binding::enabled) {
+      irq_binding::enable_irq();
     }
   }
 };

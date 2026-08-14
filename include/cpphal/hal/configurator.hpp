@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hal/system_configurator.hpp"
+#include "hal/vector_table_builder.hpp"
 
 #include "hal/gpio/gpio.hpp"
 #include "hal/uart/uart.hpp"
@@ -10,6 +11,8 @@ namespace hal {
 template <class System, class GpioConfig, class... Configs>
   requires IsSystemConfigurator<System> && core::IsAllConfigurators<Configs...>
 struct Configurator {
+  using VectorTable = irq::VectorTableBuilder<typename Configs::irq_binding...>;
+
   static constexpr void apply() {
     using Signals   = meta::extract<get_signal_pin, meta::mp_append<typename Configs::signals...>>;
     using AllGroups = meta::mp_append<
@@ -59,7 +62,7 @@ private:
   template <class T>
   struct clock_mask_traits {
     using value_type                  = typename T::reg::value_type;
-    static constexpr value_type value = T::bit;
+    static constexpr value_type value = 1 << T::bit;
   };
 
   template <class Clocks>

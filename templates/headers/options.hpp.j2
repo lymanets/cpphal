@@ -1,0 +1,33 @@
+#pragma once
+
+#include <cstdint>
+#include "meta/meta.hpp"
+#include "hal/option.hpp"
+#include "hal/{{ namespace }}/tags.hpp"
+
+namespace hal::{{ namespace }}::options {
+
+{% for option in options %}
+{% if option.kind == "value" %}
+template <{{ option.type }} Value>
+struct {{ option.name }} : Option<tags::{{ option.tag }}> {
+  static constexpr {{ option.type }} value = Value;
+};
+{% endif %}
+{% if option.kind == "enum" %}
+namespace {{ option.name }} {
+{% for value in option.option_values %}
+struct {{ value }} : Option<tags::{{ option.tag }}> {
+};
+{% endfor %}
+}
+{% endif %}
+{% if option.kind == "varargs" %}
+template <class... Args>
+struct {{ option.name }} : Option<tags::{{ option.tag }}> {
+  using value = meta::mp_list<Args...>;
+};
+{% endif %}
+{% endfor %}
+
+}

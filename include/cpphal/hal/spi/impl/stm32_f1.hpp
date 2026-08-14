@@ -127,7 +127,7 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
 public:
   template <class ClockConfig>
   static void apply() {
-    using clock_bus = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
+    // using clock_bus = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
     // Peripheral::BRR::write(BRR<clock_bus::frequency, basic::baud::value>::value);
 
     constexpr auto cr2 = cr2_bits();

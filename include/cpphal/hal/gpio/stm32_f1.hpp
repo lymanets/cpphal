@@ -60,7 +60,7 @@ public:
   static void reset() {
     static_assert(initialized,
                   "Pin was not configured. Add it to hal::gpio::Configurator.");
-    port::BRR::template clear_bit<Number>();
+    port::BRR::template set_bit<Number>();
   }
 
   template <Mode M = config::mode>

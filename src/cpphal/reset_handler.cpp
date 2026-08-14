@@ -1,5 +1,7 @@
 #include <cstdint>
 
+#include "runtime/handlers.hpp"
+
 extern "C" {
 extern std::uint32_t _sidata;
 
@@ -12,7 +14,7 @@ extern std::uint32_t _ebss;
 void __libc_init_array();
 int  main();
 
-[[noreturn]]
+__attribute__((optimize("no-tree-loop-distribute-patterns")))
 void Reset_Handler() {
   //
   // Copy .data from FLASH to RAM

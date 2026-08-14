@@ -22,6 +22,8 @@ struct {{ device_family }}Policy {
 {% for freq in freqs %}
   static constexpr std::uint32_t max_{{ freq.name }} = {{ freq.value }};
 {% endfor %}
+  static constexpr std::uint32_t irq_count = {{ irq_count }};
+  static constexpr std::uint32_t stack_top = {{ stack_top }};
 };
 
 using value = {{ device_family }}Policy;

@@ -4,7 +4,6 @@
 
 #include "meta/meta.hpp"
 
-#include "signal_kind.hpp"
 #include "on.hpp"
 
 namespace hal::core {
@@ -59,7 +58,7 @@ struct resolve_events_impl {
 
 template <class Peripheral>
 struct resolve_events_impl<Peripheral, void> {
-  using type = boost::mp11::mp_list<>;
+  using type = meta::EmptyList;
 };
 
 template <class Peripheral, class Events>
@@ -79,6 +78,11 @@ struct event_enable_bits_impl {
     get_enable_t,
     Events
   >;
+};
+
+template <>
+struct event_enable_bits_impl<meta::EmptyList> {
+  using type = meta::EmptyList;
 };
 
 template <>

@@ -106,7 +106,7 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
     using direction_bits = meta::mp_second<direction_bits_pair>;
 
     return Peripheral::CR1::PCE::encode(std::is_same_v<typename basic::parity, options::parity::None> ? 0 : 1)
-           | Peripheral::CR1::PS::encode(std::is_same_v<typename basic::parity, options::parity::Even> ? 0 : 1)
+           | Peripheral::CR1::PS::encode(std::is_same_v<typename basic::parity, options::parity::Odd> ? 1 : 0)
            | Peripheral::CR1::M::encode(basic::databits::value == 8 ? 0 : 1)
            | Peripheral::CR1::TE::encode(direction_bits::te)
            | Peripheral::CR1::RE::encode(direction_bits::re)
@@ -169,7 +169,7 @@ public:
   template <class T, class D = direction>
   static void write(const T& c)
     requires std::same_as<D, options::direction::Tx> || std::same_as<D, options::direction::TxRx> {
-    write<D>(static_cast<uint8_t*>(&c), sizeof(T));
+    write<D>(static_cast<const uint8_t*>(&c), sizeof(T));
   }
 
   template <class D = direction>
@@ -182,7 +182,8 @@ public:
   static void write(const uint8_t* data, uint32_t size)
     requires std::same_as<D, options::direction::Tx> || std::same_as<D, options::direction::TxRx> {
     while (size-- > 0) {
-      while (!Peripheral::SR::TXE::read()) { Peripheral::DR::write(*data++); }
+      Peripheral::DR::write(*data++);
+      while (!Peripheral::SR::TXE::read());
     }
   }
 };
