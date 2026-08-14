@@ -169,7 +169,7 @@ public:
   template <class T, class D = direction>
   static void write(const T& c)
     requires std::same_as<D, options::direction::Tx> || std::same_as<D, options::direction::TxRx> {
-    write<D>(static_cast<uint8_t*>(&c), sizeof(T));
+    write<D>(static_cast<const uint8_t*>(&c), sizeof(T));
   }
 
   template <class D = direction>
