@@ -213,19 +213,6 @@ hal::uart::options::Events<
 >
 ```
 
-The branch contains UART events including:
-
-```text
-RxNotEmpty
-TxEmpty
-TransmissionComplete
-Idle
-ParityError
-Error
-```
-
-Only use events supported by the selected UART configuration.
-
 ## Transmit
 
 After initialization:
@@ -236,16 +223,13 @@ BoardConfig::apply();
 LogUart::write("Hello world!\n");
 ```
 
-This is the exact application-level transmit pattern used by the current
-STM32F1 UART example.
+This is the exact application-level transmit pattern used by the current STM32F1 UART example.
 
 ## Interrupts
 
-The application does not manually define `USART1_IRQHandler()` or construct
-`.isr_vector`.
+The application does not manually define `USART1_IRQHandler()` or construct `.isr_vector`.
 
-The UART event configuration supplies the driver's IRQ binding. The board
-configuration is then applied normally:
+The UART event configuration supplies the driver's IRQ binding. The board configuration is then applied normally:
 
 ```cpp
 BoardConfig::apply();
