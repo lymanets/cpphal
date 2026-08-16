@@ -39,7 +39,7 @@ struct resolve_signals_impl {
 
 template <class Peripheral>
 struct resolve_signals_impl<Peripheral, void> {
-  using type = boost::mp11::mp_list<>;
+  using type = meta::mp_list<>;
 };
 
 template <class Peripheral, class Signals>

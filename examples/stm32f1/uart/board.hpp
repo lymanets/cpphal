@@ -16,6 +16,8 @@ struct TxEmptyHandler {
   }
 };
 
+using SystemTimer = hal::system_timer::Driver<hal::system_timer::Unit::msec>;
+
 using System = hal::SystemConfigurator<
   hal::rcc::PLL<8_MHz>,
   hal::rcc::Sysclk<72_MHz>,
@@ -45,6 +47,7 @@ using LogUart = hal::uart::Driver<
 
 using BoardConfig = hal::Configurator<
   System,
+  SystemTimer,
   GpioConfig,
   LogUart
 >;

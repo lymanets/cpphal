@@ -6,9 +6,10 @@
 #include "hal/gpio/gpio.hpp"
 #include "hal/uart/uart.hpp"
 #include "hal/spi/spi.hpp"
+#include "hal/system_timer/system_timer.hpp"
 
 namespace hal {
-template <class System, class GpioConfig, class... Configs>
+template <class System, class SystemTimer, class GpioConfig, class... Configs>
   requires IsSystemConfigurator<System> && core::IsAllConfigurators<Configs...>
 struct Configurator {
   using VectorTable = irq::VectorTableBuilder<typename Configs::irq_binding...>;
@@ -24,6 +25,7 @@ struct Configurator {
     using Clocks = meta::extract<get_key, AllGroups>;
     System::apply();
     EnableClocks<meta::extract<get_clock, Clocks>>::apply();
+    SystemTimer::template apply<System>();
     GpioConfig::template apply<Signals>();
     (Configs::template apply<System>(), ...);
   }
