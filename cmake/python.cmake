@@ -1,6 +1,6 @@
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-set(VENV_DIR ${CMAKE_CURRENT_BINARY_DIR}/.venv)
+set(VENV_DIR ${CMAKE_BINARY_DIR}/.venv)
 
 if (WIN32)
     set(VENV_PYTHON ${VENV_DIR}/Scripts/python.exe)
@@ -35,9 +35,9 @@ function(generate_device signal_config manifest svd_dir)
 endfunction(generate_device)
 
 function(generate_ast target)
-    add_custom_target(generate_headers DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/generated.stamp)
+    add_custom_target(generate_headers_${target} DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/generated.stamp)
 
     target_include_directories(${target} PRIVATE include ${CMAKE_CURRENT_BINARY_DIR}/generated/include)
-    add_dependencies(${target} generate_headers)
+    add_dependencies(${target} generate_headers_${target})
 endfunction(generate_ast)
 
