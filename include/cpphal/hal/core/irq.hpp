@@ -12,11 +12,15 @@ struct Binding {
   static constexpr bool         enabled    = Enabled;
 
   static void enable_irq() {
-    NVIC_EnableIRQ(IRQNumber);
+    if constexpr (IRQNumber >= 0) {
+      NVIC_EnableIRQ(IRQNumber);
+    }
   }
 
   static void disable_irq() {
-    NVIC_DisableIRQ(IRQNumber);
+    if constexpr (IRQNumber >= 0) {
+      NVIC_DisableIRQ(IRQNumber);
+    }
   }
 };
 } // namespace hal::irq
