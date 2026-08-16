@@ -12,6 +12,7 @@ namespace hal::system_timer {
 template <Unit U>
 struct Driver {
 private:
+  static constexpr Unit u_         = U;
   using counter_t                  = std::uint32_t;
   static inline counter_t counter_ = 0;
   counter_t               timeout_ = 0;
@@ -53,7 +54,10 @@ public:
 
   void stop() { stop_ = true; }
 
-  static void delay_ms(counter_t msec) {
+
+  template <Unit u = u_>
+  static void delay_ms(counter_t msec)
+    requires (u == Unit::msec) {
     const auto start = value();
 
     while (value() - start < msec) {
