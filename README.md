@@ -9,7 +9,7 @@ The current development target is **STM32F1**.
 | Family | SVD | Registers | Policy | GPIO | RCC | UART | SPI | I2C | DMA | Timers | ADC | Status |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | STM32F0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Not added |
-| **STM32F1** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ❌ | ❌ | ❌ | ❌ | **Current target** |
+| **STM32F1** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | ❌ | ❌ | ❌ | **Current target** |
 | STM32F2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Not added |
 | STM32F3 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Not added |
 | STM32F4 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Not added |
