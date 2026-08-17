@@ -2,6 +2,10 @@ if (WIN32)
     set(__WIN32__ ON)
 endif ()
 
+if (_initial)
+    return()
+endif ()
+
 if (NOT TOOLCHAIN_DIR)
     if (__WIN32__)
         set(TOOLCHAIN_DIR $ENV{USERPROFILE}/gcc_arm_12)
@@ -98,3 +102,4 @@ set(CMAKE_CXX_COMPILER_WORKS 1)
 
 set(CMAKE_OSX_ARCHITECTURES "")
 SET(APPLE FALSE)
+set(_initial ON)
