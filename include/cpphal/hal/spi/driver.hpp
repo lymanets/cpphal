@@ -81,7 +81,7 @@ private:
 public:
   using irq_binding = irq::Binding<Peripheral::irq_number,
                                    irq_handler,
-                                   !meta::mp_empty<typename configurator::advanced::events>::value>;
+                                   !meta::mp_empty<typename configurator::advanced::events::value>::value>;
   using signals = core::resolve_signals_t<Peripheral, signals_type_pair>;
 
   template <class ClockConfig>

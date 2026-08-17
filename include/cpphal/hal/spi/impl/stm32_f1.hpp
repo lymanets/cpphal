@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bit>
 #include <device.hpp>
 
 #include "configurator.hpp"
@@ -28,12 +29,28 @@ template <
   class AdvancedConfig>
 struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, AdvancedConfig> {
   // private:
-  template <std::uint32_t Pclk, std::uint32_t Baud>
-  struct BRR {
-    static constexpr std::uint32_t usartdiv16 = (Pclk + Baud / 2) / Baud;
-    static constexpr std::uint32_t mantissa   = usartdiv16 / 16;
-    static constexpr std::uint32_t fraction   = usartdiv16 % 16;
-    static constexpr std::uint32_t value      = (mantissa << 4) | fraction;
+  template <std::uint32_t Pclk, std::uint32_t Requested>
+  struct Prescaler {
+    static_assert(Requested <= Pclk / 2, "SPI frequency is too high");
+
+    static constexpr std::uint32_t value =
+        (Requested >= Pclk / 2)
+          ? 2
+          : (Requested >= Pclk / 4)
+          ? 4
+          : (Requested >= Pclk / 8)
+          ? 8
+          : (Requested >= Pclk / 16)
+          ? 16
+          : (Requested >= Pclk / 32)
+          ? 32
+          : (Requested >= Pclk / 64)
+          ? 64
+          : (Requested >= Pclk / 128)
+          ? 128
+          : 256;
+
+    static constexpr std::uint32_t br = std::countr_zero(value) - 1;
   };
 
   struct get_register {
@@ -52,44 +69,13 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
 
   using events_registers = meta::group_by<get_register, get_bit, typename advanced::enables::value>;
 
-  // template <std::uint32_t TE, std::uint32_t RE>
-  // struct DirectionBits {
-  //   static constexpr std::uint32_t te = TE;
-  //   static constexpr std::uint32_t re = RE;
-  // };
-  //
-  // template <std::uint32_t Cts, std::uint32_t Rts>
-  // struct FlowControlBits {
-  //   static constexpr std::uint32_t cts = Cts;
-  //   static constexpr std::uint32_t rts = Rts;
-  // };
-
-  // using DirectionMap = meta::mp_list<
-  //   meta::mp_list<options::direction::Tx, DirectionBits<1, 0>>,
-  //   meta::mp_list<options::direction::Rx, DirectionBits<0, 1>>,
-  //   meta::mp_list<options::direction::TxRx, DirectionBits<1, 1>>
-  // >;
-  //
-  // using FlowControlMap = meta::mp_list<
-  //   meta::mp_list<options::flow_control::None, FlowControlBits<0, 0>>,
-  //   meta::mp_list<options::flow_control::Cts, FlowControlBits<1, 0>>,
-  //   meta::mp_list<options::flow_control::Rts, FlowControlBits<0, 1>>,
-  //   meta::mp_list<options::flow_control::RtsCts, FlowControlBits<1, 1>>
-  // >;
-  //
-  // using StopBitsMap = meta::mp_list<
-  //   meta::mp_list<options::StopBits<1>, options::StopBits<0b00>>,
-  //   meta::mp_list<options::StopBits<0.5>, options::StopBits<0b01>>,
-  //   meta::mp_list<options::StopBits<2>, options::StopBits<0b10>>,
-  //   meta::mp_list<options::StopBits<1.5>, options::StopBits<0b11>>
-  // >;
-
   template <class List, class Reg>
   using encode_t = encode_or_zero<meta::get_by_key_t<List, Reg>>::type;
 
   template <class Reg>
   using Fallback = std::integral_constant<typename Reg::value_type, 0>;
 
+  template <class ClockConfig>
   static consteval std::uint32_t cr1_bits() {
     using direction = typename basic::direction;
 
@@ -105,12 +91,18 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
 
     using cr1_events = encode_t<events_registers, typename Peripheral::CR1>;
 
+    using clock_bus = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
+    using br        = Prescaler<clock_bus::frequency, basic::baud::value>;
+
     return Peripheral::CR1::RXONLY::encode(rxonly)
            | Peripheral::CR1::BIDIMODE::encode(bidimode)
            | Peripheral::CR1::BIDIOE::encode(bidioe)
            | Peripheral::CR1::DFF::encode(dff)
            | Peripheral::CR1::LSBFIRST::encode(lsbfirst)
            | Peripheral::CR1::SPE::encode(1)
+           | Peripheral::CR1::SSM::encode(1)
+           | Peripheral::CR1::SSI::encode(1)
+           | Peripheral::CR1::BR::encode(br::br)
            | Peripheral::CR1::MSTR::encode(mstr)
            | Peripheral::CR1::CPOL::encode(cpol)
            | Peripheral::CR1::CPHA::encode(cpha)
@@ -127,13 +119,10 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
 public:
   template <class ClockConfig>
   static void apply() {
-    // using clock_bus = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
-    // Peripheral::BRR::write(BRR<clock_bus::frequency, basic::baud::value>::value);
-
     constexpr auto cr2 = cr2_bits();
     if constexpr (cr2 != 0) Peripheral::CR2::write(cr2);
 
-    constexpr auto cr1 = cr1_bits();
+    constexpr auto cr1 = cr1_bits<ClockConfig>();
     if constexpr (cr1 != 0) Peripheral::CR1::write(cr1);
   }
 };
@@ -147,19 +136,21 @@ private:
   using basic = Basic<Peripheral, BasicConfig>;
 
 public:
-  template <class T>
-  static void write(const T& c) {
-    write(static_cast<uint8_t*>(&c), sizeof(T));
-  }
-
-  static void write(const char* str) {
-    write(reinterpret_cast<const uint8_t*>(str), strlen(str));
-  }
-
-  static void write(const uint8_t* data, uint32_t size) {
-    while (size-- > 0) {
-      while (!Peripheral::SR::TXE::read()) { Peripheral::DR::write(*data++); }
+  static uint8_t transfer(const uint8_t data) {
+    while (!Peripheral::SR::TXE::read()) {
     }
+
+    Peripheral::DR::write(data);
+
+    while (!Peripheral::SR::RXNE::read()) {
+    }
+
+    const auto rx = Peripheral::DR::read();
+
+    while (Peripheral::SR::BSY::read()) {
+    }
+
+    return rx;
   }
 };
 }
