@@ -24,7 +24,9 @@
 {% if ctx.is_uart %}
 #include <hal/uart/events.hpp>
 {% endif %}
-
+{% if ctx.is_spi %}
+#include <hal/spi/events.hpp>
+{% endif %}
 {% for port in ctx.gpio_inc %}
 #include <gpio{{ port }}.hpp>
 {% endfor %}
@@ -81,7 +83,7 @@ struct {{ ctx.peripheral.name }} : hal::core::Peripheral<{{ ctx.peripheral.name 
         using {{ event.name }} = hal::core::Event<hal::core::clear_policy::{{ event.clear_policy }}, {{ event.enable_bit }}, {{ event.data_bit }}, {{ event.status_bit | join(', ') }}>;
     {% endfor %}
     };
-    {% if ctx.is_uart %}
+    {% if ctx.is_uart or ctx.is_spi %}
     using event_map = meta::mp_list<
     {% for event in ctx.events %}
     meta::mp_list<

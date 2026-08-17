@@ -133,7 +133,7 @@ def make_context(gen:GenerationContext, signals_config, event_config, af, periph
         is_uart=peripheral.name.startswith("UART") or peripheral.name.startswith("USART"),
         is_spi=peripheral.name.startswith("SPI") 
     )
-    ctx.event_namespace = "uart"
+    ctx.event_namespace = "spi" if ctx.is_spi else "uart"
     ctx.signals = make_signals(af, peripheral, signals_config)
     ctx.events = make_events(af, peripheral, event_config)
     ctx.gpio_inc = list(set([signal["port"].lower() for signal in ctx.signals]))
