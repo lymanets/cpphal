@@ -131,9 +131,11 @@ def make_context(gen:GenerationContext, signals_config, event_config, af, periph
         is_gpio=peripheral.name.startswith("GPIO"),
         is_rcc=peripheral.name=="RCC",
         is_uart=peripheral.name.startswith("UART") or peripheral.name.startswith("USART"),
-        is_spi=peripheral.name.startswith("SPI") 
+        is_spi=peripheral.name.startswith("SPI"),
+        is_i2c=peripheral.name.startswith("I2C")
     )
-    ctx.event_namespace = "spi" if ctx.is_spi else "uart"
+    ctx.event_namespace = "spi" if ctx.is_spi else "uart" if ctx.is_uart else "i2c" if ctx.is_i2c else "gpio"
+    ctx.traits_namespace = "spi" if ctx.is_spi else "uart" if ctx.is_uart else "i2c" if ctx.is_i2c else "gpio::port"
     ctx.signals = make_signals(af, peripheral, signals_config)
     ctx.events = make_events(af, peripheral, event_config)
     ctx.gpio_inc = list(set([signal["port"].lower() for signal in ctx.signals]))

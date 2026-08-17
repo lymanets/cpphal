@@ -106,3 +106,23 @@ spi:
     - name: Events
       kind: varargs
       tag: Events
+
+i2c:
+  namespace: i2c
+
+  options:
+    - name: Frequency
+      kind: value
+      type: std::uint32_t
+      tag: Frequency
+      default: 400_kHz
+
+    - name: Timeout
+      kind: value
+      type: std::uint32_t
+      tag: Timeout
+      default: 10
+
+    - name: Events
+      kind: varargs
+      tag: Events

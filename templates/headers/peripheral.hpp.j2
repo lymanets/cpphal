@@ -27,6 +27,9 @@
 {% if ctx.is_spi %}
 #include <hal/spi/events.hpp>
 {% endif %}
+{% if ctx.is_i2c %}
+#include <hal/i2c/events.hpp>
+{% endif %}
 {% for port in ctx.gpio_inc %}
 #include <gpio{{ port }}.hpp>
 {% endfor %}
@@ -116,21 +119,11 @@ namespace hal
 }
 {% endif %}
 
-{% if ctx.is_uart %}
+{% if ctx.is_uart or ctx.is_spi or ctx.is_i2c %}
 namespace hal
 {
   template<>
-  struct traits<uart::tag<{{ ctx.peripheral.name[-1:] }}>> {
-    using peripheral = mcu::{{ ctx.peripheral.name }};
-  };
-}
-{% endif %}
-
-{% if ctx.is_spi %}
-namespace hal
-{
-  template<>
-  struct traits<spi::tag<{{ ctx.peripheral.name[-1:] }}>> {
+  struct traits<{{ ctx.traits_namespace }}::tag<{{ ctx.peripheral.name[-1:] }}>> {
     using peripheral = mcu::{{ ctx.peripheral.name }};
   };
 }

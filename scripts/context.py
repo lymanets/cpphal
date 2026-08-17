@@ -38,10 +38,12 @@ class PeripheralContext:
     is_rcc:bool=False
     is_uart:bool=False
     is_spi:bool=False
+    is_i2c:bool=False
     signals:list|None=None
     event_namespace:str|None=None
     events:list|None=None
     gpio_inc:list|None=None
+    traits_namespace:str=""
     extra:dict=field(default_factory=dict)
 
     def get_access(self, access) -> str: 

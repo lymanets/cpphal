@@ -8,3 +8,4 @@ from scripts.renderers.headers.options import OptionsRenderer
 from scripts.renderers.headers.tags import TagsRenderer
 from scripts.renderers.headers.events import EventsRenderer
 from scripts.renderers.docs import DocsRenderer
+from scripts.renderers.headers.peripheral_header import PeripheralHeaderRenderer

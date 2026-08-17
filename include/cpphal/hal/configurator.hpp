@@ -6,6 +6,7 @@
 #include "hal/gpio/gpio.hpp"
 #include "hal/uart/uart.hpp"
 #include "hal/spi/spi.hpp"
+#include "hal/i2c/i2c.hpp"
 #include "hal/system_timer/system_timer.hpp"
 
 namespace hal {

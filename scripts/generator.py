@@ -3,7 +3,7 @@ from cmsis_svd import SVDParser
 from .context import GenerationContext
 from .builder import make_context
 from .renderer import create_environment
-from .renderers import DeviceRenderer, PeripheralRenderer, DeviceCmakeRenderer, OptionsRenderer, TagsRenderer, DocsRenderer, EventsRenderer, LinkerRenderer
+from .renderers import DeviceRenderer, PeripheralRenderer, DeviceCmakeRenderer, OptionsRenderer, TagsRenderer, DocsRenderer, EventsRenderer, PeripheralHeaderRenderer, LinkerRenderer
 import yaml
 import os
 import shutil
@@ -71,6 +71,8 @@ def generate(configs, manifest, svd_dir, output, namespace):
 
     for peripheral in device.peripherals:
         ctx = make_context(gen, signals_config, event_config, manifest["af"], peripheral)
+        if ctx.is_i2c or ctx.is_uart or ctx.is_spi:
+            PeripheralHeaderRenderer(env).render_header(ctx.event_namespace, output)
         renderer.render_peripheral(
             ctx,
             namespace,
