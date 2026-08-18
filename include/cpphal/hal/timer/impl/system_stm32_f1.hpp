@@ -3,11 +3,11 @@
 #include <device.hpp>
 
 #include "configurator.hpp"
-#include "hal/system_timer/options.hpp"
+#include "hal/timer/unit.hpp"
 
-namespace hal::system_timer::impl {
+namespace hal::timer::impl {
 template <Unit U>
-struct Configurator<mcu::policy::STM32F1Policy, U> {
+struct System<mcu::policy::STM32F1Policy, U> {
   template <class ClockConfig>
   static void apply() {
     using Sysclk = ClockConfig::OptionHolder::template get<rcc::tags::Sysclk>;

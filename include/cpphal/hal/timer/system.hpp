@@ -5,12 +5,12 @@
 #include "hal/core/configurator.hpp"
 #include "hal/core/irq.hpp"
 
-#include "impl/stm32_f1.hpp"
-#include "hal/system_timer/options.hpp"
+#include "impl/system_stm32_f1.hpp"
+#include "hal/timer/unit.hpp"
 
-namespace hal::system_timer {
+namespace hal::timer {
 template <Unit U>
-struct Driver {
+struct System {
 private:
   static constexpr Unit u_         = U;
   using counter_t                  = std::uint32_t;
@@ -18,7 +18,7 @@ private:
   counter_t               timeout_ = 0;
   bool                    stop_    = false;
 
-  using configurator = impl::Configurator<mcu::policy::value, U>;
+  using configurator = impl::System<mcu::policy::value, U>;
 
   static void irq_handler() {
     counter_++;

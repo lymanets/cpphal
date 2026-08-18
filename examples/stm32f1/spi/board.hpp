@@ -6,7 +6,7 @@
 
 using namespace hal::literals;
 
-using SystemTimer = hal::system_timer::Driver<hal::system_timer::Unit::msec>;
+using SystemTimer = hal::timer::System<hal::timer::Unit::msec>;
 
 using System = hal::SystemConfigurator<
   hal::rcc::PLL<8_MHz>,

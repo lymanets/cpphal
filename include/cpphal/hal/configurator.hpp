@@ -7,7 +7,7 @@
 #include "hal/uart/uart.hpp"
 #include "hal/spi/spi.hpp"
 #include "hal/i2c/i2c.hpp"
-#include "hal/system_timer/system_timer.hpp"
+#include "hal/timer/timer.hpp"
 
 namespace hal {
 template <class System, class SystemTimer, class GpioConfig, class... Configs>
