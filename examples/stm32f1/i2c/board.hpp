@@ -29,6 +29,7 @@ using LogUart = hal::uart::Driver<
 
 using I2C = hal::i2c::Driver<
   1,
+  SystemTimer,
   hal::i2c::Basic<
     hal::i2c::options::Frequency<100_kHz>
   >

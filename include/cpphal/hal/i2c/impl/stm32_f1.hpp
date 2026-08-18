@@ -7,8 +7,29 @@
 #include "driver.hpp"
 #include "hal/i2c/options.hpp"
 
+namespace hal::i2c {
+enum class Error {
+  None,
+  Timeout,
+  Nack,
+  BusError,
+  ArbitrationLost,
+  Overrun
+};
+}
+
 namespace hal::i2c::impl {
 using namespace literals;
+
+template <class T>
+struct SelectTimeout {
+  static constexpr auto value = T::value;
+};
+
+template <>
+struct SelectTimeout<void> {
+  static constexpr auto value = 5;
+};
 
 template <auto freq>
 struct SelectMultiplierTRISE {
@@ -147,28 +168,106 @@ public:
 
 template <
   class Peripheral,
+  class SystemTimer,
   class BasicConfig,
   class AdvancedConfig>
-struct Driver<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, AdvancedConfig> {
+struct Driver<mcu::policy::STM32F1Policy, Peripheral, SystemTimer, BasicConfig, AdvancedConfig> {
 private:
-  using basic = Basic<Peripheral, BasicConfig>;
+  using basic                   = Basic<Peripheral, BasicConfig>;
+  using advanced                = Advanced<Peripheral, AdvancedConfig>;
+  static constexpr auto timeout = SelectTimeout<typename advanced::timeout>::value;
 
 public:
-  static uint8_t transfer(const uint8_t data) {
-    while (!Peripheral::SR::TXE::read()) {
+  static Error write(std::uint8_t        address,
+                     const std::uint8_t* data,
+                     std::size_t         size) {
+    const auto start = SystemTimer::ticks();
+
+    // Wait for bus free
+    while (Peripheral::SR2::BUSY::read()) {
+      if (Peripheral::SR1::BERR::read()) return Error::BusError;
+
+      if (Peripheral::SR1::ARLO::read()) return Error::ArbitrationLost;
+
+      if (SystemTimer::ticks() - start >= timeout) return Error::Timeout;
     }
 
-    Peripheral::DR::write(data);
+    // START
+    Peripheral::CR1::START::set();
 
-    while (!Peripheral::SR::RXNE::read()) {
+    while (!Peripheral::SR1::SB::read()) {
+      if (Peripheral::SR1::BERR::read()) return Error::BusError;
+
+      if (Peripheral::SR1::ARLO::read()) return Error::ArbitrationLost;
+
+      if (SystemTimer::ticks() - start >= timeout) {
+        Peripheral::CR1::STOP::set();
+        return Error::Timeout;
+      }
     }
 
-    const auto rx = Peripheral::DR::read();
+    // 7-bit address + WRITE
+    Peripheral::DR::write(static_cast<std::uint8_t>(address << 1));
 
-    while (Peripheral::SR::BSY::read()) {
+    while (!Peripheral::SR1::ADDR::read()) {
+      if (Peripheral::SR1::AF::read()) {
+        Peripheral::SR1::AF::reset();
+        Peripheral::CR1::STOP::set();
+        return Error::Nack;
+      }
+
+      if (Peripheral::SR1::BERR::read()) {
+        Peripheral::CR1::STOP::set();
+        return Error::BusError;
+      }
+
+      if (Peripheral::SR1::ARLO::read()) {
+        Peripheral::CR1::STOP::set();
+        return Error::ArbitrationLost;
+      }
+
+      if (SystemTimer::ticks() - start >= timeout) {
+        Peripheral::CR1::STOP::set();
+        return Error::Timeout;
+      }
     }
 
-    return rx;
+    // Clear ADDR
+    (void)Peripheral::SR1::read();
+    (void)Peripheral::SR2::read();
+
+    // Data
+    for (std::size_t i = 0; i < size; ++i) {
+      Peripheral::DR::write(data[i]);
+
+      while (!Peripheral::SR1::BTF::read()) {
+        if (Peripheral::SR1::AF::read()) {
+          Peripheral::SR1::AF::reset();
+          Peripheral::CR1::STOP::set();
+          return Error::Nack;
+        }
+
+        if (Peripheral::SR1::BERR::read()) {
+          Peripheral::CR1::STOP::set();
+          return Error::BusError;
+        }
+
+        if (Peripheral::SR1::ARLO::read()) {
+          Peripheral::CR1::STOP::set();
+          return Error::ArbitrationLost;
+        }
+
+        if (SystemTimer::ticks() - start >= timeout) {
+          Peripheral::CR1::STOP::set();
+          return Error::Timeout;
+        }
+      }
+    }
+
+    // STOP
+    Peripheral::CR1::STOP::set();
+
+    return Error::None;
   }
 };
 }

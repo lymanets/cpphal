@@ -14,11 +14,13 @@
 namespace hal::i2c {
 template <
   int PeripheralNumber,
+  class SystemTimer,
   class BasicConfig,
   class AdvancedConfig = Advanced<>>
 struct Driver
     : core::ConfiguratorSingleBase<typename traits<tag<PeripheralNumber>>::peripheral>,
       impl::Driver<mcu::policy::value, typename traits<tag<PeripheralNumber>>::peripheral,
+                   SystemTimer,
                    BasicConfig,
                    AdvancedConfig> {
 private:
