@@ -39,6 +39,7 @@ class PeripheralContext:
     is_uart:bool=False
     is_spi:bool=False
     is_i2c:bool=False
+    is_timer:bool=False
     signals:list|None=None
     event_namespace:str|None=None
     events:list|None=None

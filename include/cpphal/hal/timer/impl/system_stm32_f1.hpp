@@ -2,7 +2,7 @@
 
 #include <device.hpp>
 
-#include "configurator.hpp"
+#include "base.hpp"
 #include "hal/timer/unit.hpp"
 
 namespace hal::timer::impl {

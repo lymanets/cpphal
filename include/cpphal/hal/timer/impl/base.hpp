@@ -1,0 +1,26 @@
+#pragma once
+
+#include "hal/timer/unit.hpp"
+#include "hal/timer/options.hpp"
+
+namespace hal::timer::impl {
+template <class Policy, Unit U>
+struct System {
+};
+
+template <class Policy, class Peripheral, class Config>
+struct Basic {
+};
+
+
+template <class Peripheral, class Config>
+struct BasicConfig {
+  using peripheral = Peripheral;
+
+  using frequency = Config::template get<tags::Frequency>;
+
+
+  using events  = core::resolve_events_t<Peripheral, typename Config::template get<tags::Events>>;
+  using enables = core::event_enable_bits_t<events>;
+};
+}

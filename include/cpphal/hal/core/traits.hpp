@@ -20,6 +20,12 @@ class tag {
 };
 }
 
+namespace timer {
+template <int Number>
+class tag {
+};
+}
+
 template <class Tag>
 struct traits;
 }

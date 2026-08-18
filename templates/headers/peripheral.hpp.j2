@@ -30,6 +30,10 @@
 {% if ctx.is_i2c %}
 #include <hal/i2c/events.hpp>
 {% endif %}
+{% if ctx.is_timer %}
+#include <hal/timer/events.hpp>
+#include <hal/timer/type.hpp>
+{% endif %}
 {% for port in ctx.gpio_inc %}
 #include <gpio{{ port }}.hpp>
 {% endfor %}
@@ -119,12 +123,16 @@ namespace hal
 }
 {% endif %}
 
-{% if ctx.is_uart or ctx.is_spi or ctx.is_i2c %}
+{% if ctx.is_uart or ctx.is_spi or ctx.is_i2c or ctx.is_timer %}
 namespace hal
 {
   template<>
   struct traits<{{ ctx.traits_namespace }}::tag<{{ ctx.peripheral.name[-1:] }}>> {
     using peripheral = mcu::{{ ctx.peripheral.name }};
+    {% if ctx.is_timer %}
+    static constexpr timer::Type type = timer::Type::{{ timer_type }};
+    static constexpr std::size_t channels = {{ channels }};
+    {% endif %}
   };
 }
 {% endif %}
