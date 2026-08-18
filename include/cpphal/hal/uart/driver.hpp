@@ -15,7 +15,7 @@ namespace hal::uart {
 template <
   int Instance,
   class BasicConfig,
-  class AdvancedConfig = Advanced<>>
+  class AdvancedConfig = config::Advanced<>>
 struct Driver
     : core::ConfiguratorSingleBase<typename traits<tag<Instance>>::peripheral>,
       impl::Driver<mcu::policy::value, typename traits<tag<Instance>>::peripheral, BasicConfig,

@@ -5,7 +5,7 @@
 
 #include "hal/spi/options.hpp"
 
-namespace hal::spi {
+namespace hal::spi::config {
 template <class... Options>
 struct Basic : core::OptionHolder<Options...> {
 private:

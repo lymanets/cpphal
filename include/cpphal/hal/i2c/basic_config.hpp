@@ -5,7 +5,7 @@
 
 #include "hal/i2c/options.hpp"
 
-namespace hal::i2c {
+namespace hal::i2c::config {
 template <class... Options>
 struct Basic : core::OptionHolder<Options...> {
 private:

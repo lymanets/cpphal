@@ -2,7 +2,7 @@
 
 #include "hal/core/option_holder.hpp"
 
-namespace hal::spi {
+namespace hal::spi::config {
 template <class... Options>
 struct Advanced : core::OptionHolder<Options...> {
 private:

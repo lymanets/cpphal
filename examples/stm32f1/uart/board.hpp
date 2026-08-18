@@ -16,7 +16,7 @@ struct TxEmptyHandler {
   }
 };
 
-using SystemTimer = hal::system_timer::Driver<hal::system_timer::Unit::msec>;
+using SystemTimer = hal::timer::System<hal::timer::Unit::msec>;
 
 using System = hal::SystemConfigurator<
   hal::rcc::PLL<8_MHz>,
@@ -30,14 +30,14 @@ using GpioConfig = hal::gpio::Configurator<>;
 
 using LogUart = hal::uart::Driver<
   2,
-  hal::uart::Basic<
+  hal::uart::config::Basic<
     hal::uart::options::BaudRate<115200>,
     hal::uart::options::DataBits<8>,
     hal::uart::options::StopBits<1>,
     hal::uart::options::parity::None,
     hal::uart::options::direction::TxRx
   >,
-  hal::uart::Advanced<
+  hal::uart::config::Advanced<
     hal::uart::options::flow_control::None,
     hal::uart::options::Events<
       hal::core::On<hal::uart::events::RxNotEmpty, RxNotEmptyHandler>

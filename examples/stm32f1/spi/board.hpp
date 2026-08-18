@@ -20,7 +20,7 @@ using GpioConfig = hal::gpio::Configurator<PinDef(A, 4, OutputPushPull)>;
 
 using LogUart = hal::uart::Driver<
   2,
-  hal::uart::Basic<
+  hal::uart::config::Basic<
     hal::uart::options::BaudRate<115200>,
     hal::uart::options::DataBits<8>,
     hal::uart::options::StopBits<1>,
@@ -31,7 +31,7 @@ using LogUart = hal::uart::Driver<
 
 using NFC_SPI = hal::spi::Driver<
   1,
-  hal::spi::Basic<
+  hal::spi::config::Basic<
     hal::spi::options::mode::Master,
     hal::spi::options::clock_phase::FirstEdge,
     hal::spi::options::clock_polarity::Low,
@@ -39,7 +39,7 @@ using NFC_SPI = hal::spi::Driver<
     hal::spi::options::Baud<2_MHz>,
     hal::spi::options::DataBits<8>
   >,
-  hal::spi::Advanced<
+  hal::spi::config::Advanced<
     hal::spi::options::Events<
       // hal::core::On<hal::spi::events::TxEmpty, RxNotEmptyHandler>
     >

@@ -18,7 +18,7 @@ using GpioConfig = hal::gpio::Configurator<>;
 
 using LogUart = hal::uart::Driver<
   2,
-  hal::uart::Basic<
+  hal::uart::config::Basic<
     hal::uart::options::BaudRate<115200>,
     hal::uart::options::DataBits<8>,
     hal::uart::options::StopBits<1>,
@@ -30,7 +30,7 @@ using LogUart = hal::uart::Driver<
 using I2C = hal::i2c::Driver<
   1,
   SystemTimer,
-  hal::i2c::Basic<
+  hal::i2c::config::Basic<
     hal::i2c::options::Frequency<100_kHz>
   >
 >;

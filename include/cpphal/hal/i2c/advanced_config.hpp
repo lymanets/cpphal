@@ -2,7 +2,7 @@
 
 #include "hal/core/option_holder.hpp"
 
-namespace hal::i2c {
+namespace hal::i2c::config {
 template <class... Options>
 struct Advanced : core::OptionHolder<Options...> {
 private:

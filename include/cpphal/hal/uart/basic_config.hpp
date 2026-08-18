@@ -5,7 +5,7 @@
 
 #include "hal/uart/options.hpp"
 
-namespace hal::uart {
+namespace hal::uart::config {
 template <class... Options>
 struct Basic : core::OptionHolder<Options...> {
 private:
