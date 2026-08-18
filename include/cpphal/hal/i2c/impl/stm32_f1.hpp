@@ -117,17 +117,21 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
            | cr1_events::value;
   }
 
+  template <class ClockConfig>
   static consteval std::uint32_t cr2_bits() {
+    using clock_bus          = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
     using cr2_events         = encode_t<events_registers, typename Peripheral::CR2>;
     constexpr auto cr2_value = cr2_events::value;
-
-    return cr2_value;
+    constexpr auto freq      = clock_bus::frequency / 1'000'000;
+    static_assert(freq >= 2 || freq <= 50, "Invalid I2C clock frequency");
+    return Peripheral::CR2::FREQ::encode(freq)
+           | cr2_value;
   }
 
 public:
   template <class ClockConfig>
   static void apply() {
-    constexpr auto cr2 = cr2_bits();
+    constexpr auto cr2 = cr2_bits<ClockConfig>();
     if constexpr (cr2 != 0) Peripheral::CR2::write(cr2);
 
     constexpr auto ccr = ccr_bits<ClockConfig>();
