@@ -13,15 +13,15 @@
 
 namespace hal::uart {
 template <
-  int PeripheralNumber,
+  int Instance,
   class BasicConfig,
   class AdvancedConfig = Advanced<>>
 struct Driver
-    : core::ConfiguratorSingleBase<typename traits<tag<PeripheralNumber>>::peripheral>,
-      impl::Driver<mcu::policy::value, typename traits<tag<PeripheralNumber>>::peripheral, BasicConfig,
+    : core::ConfiguratorSingleBase<typename traits<tag<Instance>>::peripheral>,
+      impl::Driver<mcu::policy::value, typename traits<tag<Instance>>::peripheral, BasicConfig,
                    AdvancedConfig> {
 private:
-  using Peripheral = traits<tag<PeripheralNumber>>::peripheral;
+  using Peripheral = traits<tag<Instance>>::peripheral;
 
   template <class... Events>
   struct EventHandler {
