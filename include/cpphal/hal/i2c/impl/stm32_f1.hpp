@@ -8,6 +8,27 @@
 #include "hal/i2c/options.hpp"
 
 namespace hal::i2c::impl {
+using namespace literals;
+template <auto freq, bool duty>
+struct SelectMultiplier {
+  static_assert(freq == 100_kHz || freq == 400_kHz, "Invalid I2C frequency");
+};
+
+template <bool duty>
+struct SelectMultiplier<100_kHz, duty> {
+  static constexpr auto value = 2;
+};
+
+template <>
+struct SelectMultiplier<400_kHz, false> {
+  static constexpr auto value = 3;
+};
+
+template <>
+struct SelectMultiplier<400_kHz, true> {
+  static constexpr auto value = 25;
+};
+
 template <class... Fields>
 struct encode {
   static constexpr auto value = (Fields::encode(1) | ...);
@@ -52,11 +73,17 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
   template <class Reg>
   using Fallback = std::integral_constant<typename Reg::value_type, 0>;
 
+  template <auto psclk, auto freq, bool duty>
+  struct ComputeCCR {
+    static constexpr auto value = psclk / (SelectMultiplier<freq, duty>::value * freq);
+  };
+
   template <class ClockConfig>
   static consteval std::uint32_t ccr_bits() {
-    using clock_bus = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
+    using clock_bus     = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
+    constexpr auto duty = false;
 
-    constexpr auto ccr = clock_bus::frequency / (2 * basic::frequency::value);
+    constexpr auto ccr = ComputeCCR<clock_bus::frequency, basic::frequency::value, duty>::value;
     return Peripheral::CCR::CCR_FIELD::encode(ccr);
   }
 
