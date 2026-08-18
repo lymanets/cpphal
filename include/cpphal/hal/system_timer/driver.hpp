@@ -37,7 +37,7 @@ public:
     }
   }
 
-  static counter_t value() { return counter_; }
+  static counter_t ticks() { return counter_; }
 
   void mark(counter_t value) {
     timeout_ = counter_ + value;
@@ -58,9 +58,9 @@ public:
   template <Unit u = u_>
   static void delay_ms(counter_t msec)
     requires (u == Unit::msec) {
-    const auto start = value();
+    const auto start = ticks();
 
-    while (value() - start < msec) {
+    while (ticks() - start < msec) {
     }
   }
 };
