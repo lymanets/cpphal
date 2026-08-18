@@ -10,22 +10,22 @@
 namespace hal::i2c::impl {
 using namespace literals;
 template <auto freq, bool duty>
-struct SelectMultiplier {
+struct SelectMultiplierCCR {
   static_assert(freq == 100_kHz || freq == 400_kHz, "Invalid I2C frequency");
 };
 
 template <bool duty>
-struct SelectMultiplier<100_kHz, duty> {
+struct SelectMultiplierCCR<100_kHz, duty> {
   static constexpr auto value = 2;
 };
 
 template <>
-struct SelectMultiplier<400_kHz, false> {
+struct SelectMultiplierCCR<400_kHz, false> {
   static constexpr auto value = 3;
 };
 
 template <>
-struct SelectMultiplier<400_kHz, true> {
+struct SelectMultiplierCCR<400_kHz, true> {
   static constexpr auto value = 25;
 };
 
@@ -75,7 +75,7 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
 
   template <auto psclk, auto freq, bool duty>
   struct ComputeCCR {
-    static constexpr auto value = psclk / (SelectMultiplier<freq, duty>::value * freq);
+    static constexpr auto value = psclk / (SelectMultiplierCCR<freq, duty>::value * freq);
   };
 
   template <class ClockConfig>
