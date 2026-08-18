@@ -9,6 +9,22 @@
 
 namespace hal::i2c::impl {
 using namespace literals;
+
+template <auto freq>
+struct SelectMultiplierTRISE {
+  static_assert(freq == 100_kHz || freq == 400_kHz, "Invalid I2C frequency");
+};
+
+template <>
+struct SelectMultiplierTRISE<100_kHz> {
+  static constexpr auto value = 1;
+};
+
+template <>
+struct SelectMultiplierTRISE<400_kHz> {
+  static constexpr auto value = 0.3;
+};
+
 template <auto freq, bool duty>
 struct SelectMultiplierCCR {
   static_assert(freq == 100_kHz || freq == 400_kHz, "Invalid I2C frequency");
@@ -79,6 +95,13 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
   };
 
   template <class ClockConfig>
+  static consteval std::uint32_t trise_bits() {
+    using clock_bus = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
+    return static_cast<uint32_t>((clock_bus::frequency / 1'000'000) * SelectMultiplierTRISE<
+                                   basic::frequency::value>::value) + 1;
+  }
+
+  template <class ClockConfig>
   static consteval std::uint32_t ccr_bits() {
     using clock_bus     = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
     constexpr auto duty = false;
@@ -104,14 +127,17 @@ struct Configurator<mcu::policy::STM32F1Policy, Peripheral, BasicConfig, Advance
 public:
   template <class ClockConfig>
   static void apply() {
-    constexpr auto cr1 = cr1_bits();
-    if constexpr (cr1 != 0) Peripheral::CR1::write(cr1);
-
     constexpr auto cr2 = cr2_bits();
     if constexpr (cr2 != 0) Peripheral::CR2::write(cr2);
 
     constexpr auto ccr = ccr_bits<ClockConfig>();
     if constexpr (ccr != 0) Peripheral::CCR::write(ccr);
+
+    constexpr auto trise = trise_bits<ClockConfig>();
+    if constexpr (trise != 0) Peripheral::TRISE::write(trise);
+
+    constexpr auto cr1 = cr1_bits();
+    if constexpr (cr1 != 0) Peripheral::CR1::write(cr1);
   }
 };
 
