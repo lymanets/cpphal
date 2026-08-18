@@ -3,12 +3,82 @@
 #include "base.hpp"
 
 namespace hal::timer::impl {
+using namespace literals;
+
 template <class Peripheral, class Config>
 struct Basic<mcu::policy::STM32F1Policy, Peripheral, Config> {
+private:
   using basic = BasicConfig<Peripheral, Config>;
 
+  template <std::uint32_t Clock, std::uint32_t Frequency>
+  struct PrescalerARR {
+    static constexpr std::uint32_t Divisor = Clock / Frequency;
+
+    static constexpr auto solve() {
+      for (std::uint32_t psc = 0; psc <= 0xFFFF; ++psc) {
+        const auto divider = psc + 1;
+
+        if (Divisor % divider != 0) continue;
+
+        const auto arr = Divisor / divider - 1;
+
+        if (arr <= 0xFFFF) return std::pair{psc, arr};
+      }
+
+      return std::pair<uint32_t, uint32_t>{0xFFFFFFFF, 0xFFFFFFFF};
+    }
+
+    static constexpr auto value = solve();
+
+    static constexpr std::uint32_t prescaler = value.first;
+    static constexpr std::uint32_t period    = value.second;
+  };
+
+public:
   template <class ClockConfig>
   static void apply() {
+    using clock_bus = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
+
+    Peripheral::CR1::CEN::reset();
+    using psc_arr = PrescalerARR<clock_bus::frequency * 2, basic::frequency::value>;
+    Peripheral::PSC::write(psc_arr::Divisor - 1);
+
+    Peripheral::ARR::write(0xffff);
+
+    Peripheral::CNT::write(0);
+
+    Peripheral::EGR::UG::set();
+
+    Peripheral::SR::UIF::reset();
+  }
+
+
+  static void start() {
+    Peripheral::CR1::CEN::set();
+  }
+
+  static void stop() {
+    Peripheral::CR1::CEN::reset();
+  }
+
+  static void reset() {
+    Peripheral::CNT::write(0);
+  }
+
+  static std::uint32_t counter() {
+    return Peripheral::CNT::read();
+  }
+
+  static void delay_us(std::uint16_t us) {
+    static_assert(
+        basic::frequency::value == 1_MHz,
+        "timer::Basic::delay_us requires 1 MHz frequency"
+        );
+    reset();
+    const auto start = counter();
+
+    while (static_cast<std::uint16_t>(counter() - start) < us) {
+    }
   }
 };
 }

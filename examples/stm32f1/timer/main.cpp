@@ -5,8 +5,17 @@ int main() {
 
   LogUart::write("Device initialized!\n");
   LogUart::write("Timer example!\n");
+
+  BasicTimer::start();
+
+  uint32_t c = 0;
   while (true) {
-    SystemTimer::delay_ms(1000);
+    BasicTimer::delay_us(1000);
+    c++;
+    if (c <= 1'000) {
+      continue;
+    }
+    c = 0;
     LogUart::write("Ping!\n");
   }
 }
