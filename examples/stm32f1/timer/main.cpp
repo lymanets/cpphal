@@ -7,7 +7,7 @@ int main() {
   LogUart::write("Timer example!\n");
 
   BasicTimer::start();
-
+  PwmTimer::set_duty<2>(30);
   uint32_t c = 0;
   while (true) {
     BasicTimer::delay_us(1000);

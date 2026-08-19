@@ -28,8 +28,25 @@ protected:
     using type                  = meta::resolve_result_impl<get_value, options, index, found>::type;
   };
 
+  template <class Tag>
+  struct get_list_impl {
+    struct get_value {
+      template <class T>
+      using fn = std::bool_constant<
+        std::is_same_v<typename T::tag, Tag>
+      >;
+    };
+
+    using index                 = meta::mp_find_if_q<options, has_tag<Tag>>;
+    static constexpr bool found = index::value < meta::mp_size<options>::value;
+    using type                  = meta::resolve_list_result_impl<get_value, options, found>::type;
+  };
+
 public:
   template <class Tag>
   using get = get_impl<Tag>::type;
+
+  template <class Tag>
+  using get_list = get_list_impl<Tag>::type;
 };
 }

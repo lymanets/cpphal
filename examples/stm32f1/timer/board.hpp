@@ -34,10 +34,22 @@ using BasicTimer = hal::timer::Basic<
   >
 >;
 
+using PwmTimer = hal::timer::Pwm<
+  3,
+  hal::timer::config::Pwm<
+    hal::timer::options::Frequency<20_kHz>,
+    hal::timer::options::Channel<1>,
+    hal::timer::options::Channel<2>,
+    hal::timer::options::InitialDuty<20>,
+    hal::timer::options::pwm_mode::ActiveHigh
+  >
+>;
+
 using BoardConfig = hal::Configurator<
   System,
   SystemTimer,
   GpioConfig,
   LogUart,
-  BasicTimer
+  BasicTimer,
+  PwmTimer
 >;

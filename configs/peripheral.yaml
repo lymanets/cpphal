@@ -141,6 +141,25 @@ timer:
       kind: bool
       tag: AutoPeriod
 
+    - name: Channel
+      kind: value
+      type: std::uint32_t
+      tag: Channel
+      default: 1
+    
+    - name: InitialDuty
+      kind: value
+      type: std::uint32_t
+      tag: InitialDuty
+      default: 50
+
+    - name: pwm_mode
+      kind: enum
+      tag: pwm_mode
+      option_values:
+        - ActiveHigh
+        - ActiveLow
+
     - name: Events
       kind: varargs
       tag: Events
