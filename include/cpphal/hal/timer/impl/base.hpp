@@ -18,6 +18,7 @@ struct BasicConfig {
   using peripheral = Peripheral;
 
   using frequency = Config::template get<tags::Frequency>;
+  using auto_period = Config::template get<tags::AutoPeriod>;
 
 
   using events  = core::resolve_events_t<Peripheral, typename Config::template get<tags::Events>>;

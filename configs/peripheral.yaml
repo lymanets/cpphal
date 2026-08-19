@@ -136,7 +136,11 @@ timer:
       type: std::uint32_t
       tag: Frequency
       default: 1_MHz
-    
+
+    - name: AutoPeriod
+      kind: bool
+      tag: AutoPeriod
+
     - name: Events
       kind: varargs
       tag: Events

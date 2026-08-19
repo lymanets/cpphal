@@ -28,6 +28,10 @@ struct {{ option.name }} : Option<tags::{{ option.tag }}> {
   using value = meta::mp_list<Args...>;
 };
 {% endif %}
+{% if option.kind == "bool" %}
+struct {{ option.name }} : Option<tags::{{ option.tag }}> {
+};
+{% endif %}
 {% endfor %}
 
 }
