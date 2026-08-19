@@ -37,10 +37,11 @@ private:
 public:
   template <class ClockConfig>
   static void apply() {
-    using clock_bus = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
-
+    using clock_sys  = ClockConfig::OptionHolder::template get<rcc::tags::Sysclk>;
+    using clock_bus  = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
+    constexpr auto m = clock_bus::frequency == clock_sys::frequency ? 1 : 2;
     Peripheral::CR1::CEN::reset();
-    using psc_arr = PrescalerARR<clock_bus::frequency * 2, basic::frequency::value>;
+    using psc_arr = PrescalerARR<clock_bus::frequency * m, basic::frequency::value>;
     Peripheral::PSC::write(psc_arr::Divisor - 1);
 
     Peripheral::ARR::write(0xffff);
