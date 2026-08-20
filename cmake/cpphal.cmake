@@ -84,7 +84,7 @@ function(add_mcu_target PART dir)
     )
 endfunction()
 
-function(cpphal_create TARGET PART SRCS FLASH_BASE VECT_TAB_OFFSET)
+function(cpphal_create_firmware TARGET PART SRCS FLASH_BASE VECT_TAB_OFFSET)
     include(${__lib_root}/cmake/hal_configure.cmake)
     add_mcu_target(${PART} GENERATED_DIR)
     string(TOLOWER "${PART}" PART)
@@ -120,4 +120,4 @@ function(cpphal_create TARGET PART SRCS FLASH_BASE VECT_TAB_OFFSET)
 
     target_sources(${TARGET} PRIVATE ${GENERATED_VECTOR_CPP})
 
-endfunction(cpphal_create)
+endfunction(cpphal_create_firmware)
