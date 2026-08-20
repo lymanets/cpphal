@@ -35,23 +35,23 @@ public:
       meta::mp_count<
         meta::mp_transform_q<get_tag<tags::Frequency>, options_t>,
         tags::Frequency>::value == 1,
-      "Exactly one Frequency<> must be specified.");
+      "timer::Pwm: Exactly one Frequency<> must be specified.");
 
   static_assert(
     meta::mp_count<
       meta::mp_transform_q<get_tag<tags::InitialDuty>, options_t>,
       tags::InitialDuty>::value == 1,
-    "Exactly one InitialDuty<> must be specified.");
+    "timer::Pwm: Exactly one InitialDuty<> must be specified.");
 
   using NumberOfChannels = meta::mp_count<meta::mp_transform_q<get_tag<tags::Channel>, options_t>, tags::Channel>;
 
   static_assert(
       NumberOfChannels::value > 0 && NumberOfChannels::value <= 4,
-      "At least one Channel<> must be specified but no more than 4.");
+      "timer::Pwm: At least one Channel<> must be specified but no more than 4.");
 
   static_assert(
       meta::mp_size<Channels>::value == meta::mp_size<meta::mp_unique<Channels>>::value,
-      "timer::Pwm: duplicate channel specified"
+      "timer::Pwm: channel specified more than once"
       );
 };
 }
