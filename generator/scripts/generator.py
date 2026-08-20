@@ -12,14 +12,13 @@ def __load_yaml(file):
     with open(file, "r") as f:
         return yaml.safe_load(f)
 
-def generate(configs, manifest, svd_dir, output, namespace):
+def generate(configs, manifest, svd_file, output, namespace):
     manifest = __load_yaml(manifest)
     signals_config = __load_yaml(configs/"signal.yaml")
     event_config = __load_yaml(configs/"event.yaml")
     peripheral_options = __load_yaml(configs/"peripheral.yaml")
     doc_dir = configs.parent/"docs"
-    svd = manifest["svd"]
-    device = SVDParser.for_xml_file(f"{svd_dir}/{svd[:7]}/{svd}").get_device()
+    device = SVDParser.for_xml_file(f"{svd_file}").get_device()
     gen = GenerationContext.from_device(device)
     if os.path.exists(output):
         shutil.rmtree(output)

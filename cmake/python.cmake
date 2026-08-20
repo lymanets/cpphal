@@ -25,19 +25,19 @@ if (NOT EXISTS ${VENV_PYTHON})
     )
 endif ()
 
-function(generate_device signal_config manifest svd_dir)
+function(generate_device root_dir signal_config manifest svd_dir out_dir)
     execute_process(
-            COMMAND ${VENV_PYTHON} -m scripts.cli ${signal_config} ${manifest} ${svd_dir} -o ${CMAKE_CURRENT_BINARY_DIR}/generated
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/generated.stamp
+            COMMAND ${VENV_PYTHON} -m scripts.cli ${signal_config} ${manifest} ${svd_dir} -o ${out_dir}
+            WORKING_DIRECTORY ${root_dir}/generator
+            COMMAND ${CMAKE_COMMAND} -E touch ${out_dir}/generated.stamp
             COMMAND_ERROR_IS_FATAL ANY
     )
 endfunction(generate_device)
 
-function(generate_ast target)
-    add_custom_target(generate_headers_${target} DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/generated.stamp)
+function(generate_ast target generate_dir)
+    add_custom_target(generate_headers_${target} DEPENDS ${generate_dir}/generated.stamp)
 
-    target_include_directories(${target} PRIVATE include ${CMAKE_CURRENT_BINARY_DIR}/generated/include)
+    target_include_directories(${target} PRIVATE include ${generate_dir}/include)
     add_dependencies(${target} generate_headers_${target})
 endfunction(generate_ast)
 

@@ -1,6 +1,6 @@
-include(${CMAKE_CURRENT_BINARY_DIR}/generated/device.cmake)
 
-function(hal_configure_target target optimization)
+function(hal_configure_target target generated_dir optimization)
+    include(${generated_dir}/device.cmake)
 
     target_link_options(${target} PRIVATE
             $<$<COMPILE_LANGUAGE:CXX,C>:
