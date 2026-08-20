@@ -190,6 +190,10 @@ af:
             signal: CTS
         -   peripheral: ADC12
             signal: IN0
+        -   peripheral: TIM2
+            signal: CH1
+        -   peripheral: TIM2
+            signal: ETR
         remap: []
     PA1:
         functions:
