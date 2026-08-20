@@ -78,10 +78,7 @@ public:
 
     Peripheral::CR1::CEN::reset();
     using psc_arr               = PrescalerARR<timer_frequency, basic::frequency::value, true>;
-    static_assert(
-        basic::initial_duty::value <= 100,
-        "timer::Pwm: initial duty must be in range [0, 100]"
-        );
+
     constexpr auto initial_duty = (psc_arr::period * basic::initial_duty::value) / 100;
     constexpr auto timer_freq = timer_frequency / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
 

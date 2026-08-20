@@ -1,5 +1,3 @@
-message("SS ${COMPILE_ARGS}")
-
 execute_process(
         COMMAND
         ${CXX}

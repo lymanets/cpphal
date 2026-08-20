@@ -18,6 +18,11 @@ private:
 
   using basic = impl::PwmConfig<Peripheral, Config>;
 
+  static_assert(
+      basic::initial_duty::value <= 100,
+      "timer::Pwm: initial duty must be in range [0, 100]"
+      );
+
   template <class... Events>
   struct EventHandler {
     static void handle() {
@@ -43,6 +48,26 @@ public:
                                    !meta::mp_empty<typename basic::events::value>::value>;
   using signals = core::resolve_signals_t<Peripheral, signals_type_pair>;
 
+  template <class ClockConfig>
+  static void apply() {
+    using clock_sys = typename ClockConfig::OptionHolder::template get<rcc::tags::Sysclk>;
+    using clock_bus = typename ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
 
+    constexpr auto timer_frequency =
+        clock_bus::frequency == clock_sys::frequency
+          ? clock_bus::frequency
+          : clock_bus::frequency * 2;
+
+    static_assert(
+        basic::frequency::value > 0,
+        "timer::Pwm: invalid frequency"
+        );
+    static_assert(
+        basic::frequency::value <= timer_frequency,
+        "timer::Pwm: frequency cannot be greater than timer clock"
+        );
+
+    impl::Pwm<mcu::policy::value, typename traits<tag<Instance>>::peripheral, Config>::template apply<ClockConfig>();
+  }
 };
 }

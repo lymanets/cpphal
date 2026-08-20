@@ -20,18 +20,38 @@ add_compile_fail_test(
         "timer::Pwm: channel specified more than once"
 )
 
-#add_compile_fail_test(
-#        pwm_invalid_mode
-#        compile/pwm_invalid_mode.cpp
-#        "timer::Pwm: invalid PWM mode"
-#)
-#
-#add_compile_fail_test(
-#        pwm_invalid_duty
-#        compile/pwm_invalid_duty.cpp
-#        "timer::Pwm: initial duty must be in range"
-#)
-#
+add_compile_fail_test(
+        pwm_frequency_invalid
+        compile/pwm_frequency_invalid.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "timer::Pwm: invalid frequency"
+)
+
+add_compile_fail_test(
+        pwm_frequency_greater_than_clock_timer
+        compile/pwm_frequency_greater_than_clock_timer.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "timer::Pwm: frequency cannot be greater than timer clock"
+)
+
+add_compile_fail_test(
+        pwm_invalid_channel
+        compile/pwm_invalid_channel.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "timer::Pwm: channel should be in range"
+)
+
+add_compile_fail_test(
+        pwm_invalid_duty
+        compile/pwm_invalid_duty.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "timer::Pwm: initial duty must be in range"
+)
+
 add_compile_fail_test(
         pwm_unconfigured_channel
         compile/pwm_unconfigured_channel.cpp
