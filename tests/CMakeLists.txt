@@ -5,4 +5,11 @@ enable_testing()
 
 add_mcu_target(stm32f103rb GENERATED_DIR)
 
+add_custom_target(hal_compile_tests
+        COMMAND ${CMAKE_CTEST_COMMAND}
+        --output-on-failure
+        -R "\"^(basic_|pwm_|rcc_)\""
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
 add_subdirectory(compile)

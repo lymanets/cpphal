@@ -38,7 +38,7 @@ public:
   static consteval std::uint8_t pllmul_bits() {
     constexpr int mul = pllmul();
 
-    static_assert(mul != -1, "PLL multiplier not found.");
+    static_assert(mul != -1, "rcc: PLL multiplier not found.");
 
     // RM0008:
     // x2=0000 ... x16=1110
@@ -50,14 +50,14 @@ public:
     if constexpr (s == SourceType::PLL) return 0b10;
     else if constexpr (s == SourceType::HSE) return 0b01;
     else if constexpr (s == SourceType::HSI) return 0b00;
-    else static_assert(s >= 3, "Invalid SourceType.");
+    else static_assert(s >= 3, "rcc: Invalid SourceType.");
     return 0;
   }
 
   static consteval std::uint8_t hpre_bits() {
     constexpr std::uint32_t f = AHBCLK::frequency;
 
-    static_assert(f == sys, "Invalid AHB frequency. !");
+    static_assert(f == sys, "rcc: Invalid AHB frequency. !");
 
     if constexpr (f == sys) return 0b0000;
     else if constexpr (f == sys / 2) return 0b1000;
@@ -68,7 +68,7 @@ public:
     else if constexpr (f == sys / 128) return 0b1101;
     else if constexpr (f == sys / 256) return 0b1110;
     else if constexpr (f == sys / 512) return 0b1111;
-    else static_assert(f == 0, "Invalid AHB frequency.");
+    else static_assert(f == 0, "rcc: Invalid AHB frequency.");
     return 0;
   }
 
@@ -95,9 +95,9 @@ public:
   using RCC       = mcu::RCC;
   using CFGRField = RCC::CFGR;
 
-  static_assert(sys <= policy::max_sysclk);
-  static_assert(APB1CLK::frequency <= policy::max_apb1);
-  static_assert(APB2CLK::frequency <= policy::max_apb2);
+  static_assert(sys <= policy::max_sysclk, "rcc: Invalid Sysclk frequency");
+  static_assert(APB1CLK::frequency <= policy::max_apb1, "rcc: Invalid APB1 frequency");
+  static_assert(APB2CLK::frequency <= policy::max_apb2, "rcc: Invalid APB2 frequency");
 
   static constexpr std::uint8_t PLLSRC   = 1; // HSE
   static constexpr std::uint8_t PLLXTPRE = 0; // HSE not divided
@@ -107,8 +107,8 @@ public:
   static constexpr std::uint8_t PPRE1 = ppre_bits(APB1CLK::frequency);
   static constexpr std::uint8_t PPRE2 = ppre_bits(APB2CLK::frequency);
 
-  static_assert(PPRE1 != 0xff, "Invalid APB1 frequency.");
-  static_assert(PPRE2 != 0xff, "Invalid APB2 frequency.");
+  static_assert(PPRE1 != 0xff, "rcc: Invalid APB1 frequency.");
+  static_assert(PPRE2 != 0xff, "rcc: Invalid APB2 frequency.");
 
   static constexpr std::uint8_t FLASH_LATENCY = flash_latency();
 

@@ -1,13 +1,6 @@
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/tests.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/cpphal.cmake)
 
-add_custom_target(hal_compile_tests
-        COMMAND ${CMAKE_CTEST_COMMAND}
-        --output-on-failure
-        -R "\"^(basic_|pwm_)\""
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-
 #Basic tests
 add_compile_fail_test(
         basic_auto_period
