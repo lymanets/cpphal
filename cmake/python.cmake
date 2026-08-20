@@ -34,10 +34,3 @@ function(generate_device root_dir signal_config manifest svd_dir out_dir)
     )
 endfunction(generate_device)
 
-function(generate_ast target generate_dir)
-    add_custom_target(generate_headers_${target} DEPENDS ${generate_dir}/generated.stamp)
-
-    target_include_directories(${target} PRIVATE include ${generate_dir}/include)
-    add_dependencies(${target} generate_headers_${target})
-endfunction(generate_ast)
-

@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.26)
 include(cmake/gcc_arm.cmake)
 
 option(WITH_EXAMPLES "Build with examples" ON)
+option(WITH_TESTS "Build with tests" ON)
 option(WITH_DEBUG_INFO "Build with debug info" OFF)
 
 project(cpphal VERSION 0.1.0 LANGUAGES CXX C ASM)
@@ -14,3 +15,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURC
 if (WITH_EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples)
 endif ()
+
+if (WITH_TESTS)
+    include(CTest)
+    add_subdirectory(tests)
+endif()

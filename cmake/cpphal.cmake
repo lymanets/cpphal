@@ -52,11 +52,11 @@ function(add_mcu_target PART dir)
     set(MANIFEST_FILE "${MANIFESTS_DIR}/${MANIFEST_NAME}.yaml")
     set(GENERATED_DIR "${CMAKE_BINARY_DIR}/generated/${PART_LOWER}")
     set(${dir} ${GENERATED_DIR} PARENT_SCOPE)
-    file(MAKE_DIRECTORY ${GENERATED_DIR})
-    generate_device(${__lib_root} ${DEVICES_DIR} ${MANIFEST_FILE} ${SVD_FILE} ${GENERATED_DIR})
     if (TARGET cpphal_mcu_${PART_LOWER})
         return()
     endif ()
+    file(MAKE_DIRECTORY ${GENERATED_DIR})
+    generate_device(${__lib_root} ${DEVICES_DIR} ${MANIFEST_FILE} ${SVD_FILE} ${GENERATED_DIR})
     add_library(cpphal_mcu_${PART_LOWER} INTERFACE)
 
     add_library(
@@ -68,13 +68,13 @@ function(add_mcu_target PART dir)
     target_include_directories(
             cpphal_mcu_${PART_LOWER}
             INTERFACE
-            "${GENERATED_DIR}"
+            "${GENERATED_DIR}/include"
     )
 
     target_compile_definitions(
             cpphal_mcu_${PART_LOWER}
             INTERFACE
-            "${MCU_PART}"
+            "${PART_UPPER}=1"
     )
 
     message(STATUS
@@ -96,11 +96,10 @@ function(cpphal_create_firmware TARGET PART SRCS FLASH_BASE VECT_TAB_OFFSET)
     endif ()
 
     hal_configure_target(${TARGET} ${GENERATED_DIR} ${__args})
+
     target_link_libraries(${TARGET} PRIVATE cpphal cpphal::mcu::${PART})
-    target_include_directories(${TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/include/cpphal)
-    target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries(${TARGET} PRIVATE cpphal)
-    target_compile_definitions(${TARGET} PRIVATE ${MCU_TARGET} FLASH_BASE=${FLASH_BASE} VECT_TAB_OFFSET=${VECT_TAB_OFFSET})
+
+    target_compile_definitions(${TARGET} PRIVATE FLASH_BASE=${FLASH_BASE} VECT_TAB_OFFSET=${VECT_TAB_OFFSET})
 
     set(GENERATED_VECTOR_CPP ${CMAKE_CURRENT_BINARY_DIR}/generated/hal_vector_table.cpp)
 

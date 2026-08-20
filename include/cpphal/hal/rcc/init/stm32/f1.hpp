@@ -6,7 +6,7 @@
 namespace hal {
 template <>
 inline void SystemInit<mcu::policy::STM32F1Policy>() {
-#if !defined(CLANG_TOOL_FIND_CONF)
+#if !defined(COMPILE_TEST)
   using namespace mcu;
   /* Reset the RCC clock configuration to the default reset state(for debug purpose) */
   /* Set HSION bit */

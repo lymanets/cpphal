@@ -42,8 +42,6 @@ function(hal_configure_target target generated_dir optimization)
             >
     )
 
-    target_include_directories(${target} PRIVATE ${HAL_INCLUDE_DIRECTORIES})
-
     print_size(${target})
 endfunction(hal_configure_target)
 
