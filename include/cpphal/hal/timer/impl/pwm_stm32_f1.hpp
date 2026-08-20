@@ -142,13 +142,13 @@ public:
                   "timer::Pwm: channel is not configured");
 
     if constexpr (channel == 1) {
-      Peripheral::CC1E::set();
+      Peripheral::CCER::CC1E::set();
     } else if constexpr (channel == 2) {
-      Peripheral::CC2E::set();
+      Peripheral::CCER::CC2E::set();
     } else if constexpr (channel == 3) {
-      Peripheral::CC3E::set();
+      Peripheral::CCER::CC3E::set();
     } else if constexpr (channel == 4) {
-      Peripheral::CC4E::set();
+      Peripheral::CCER::CC4E::set();
     }
   }
 
@@ -160,13 +160,13 @@ public:
                   "timer::Pwm: channel is not configured");
 
     if constexpr (channel == 1) {
-      Peripheral::CC1E::reset();
+      Peripheral::CCER::CC1E::reset();
     } else if constexpr (channel == 2) {
-      Peripheral::CC2E::reset();
+      Peripheral::CCER::CC2E::reset();
     } else if constexpr (channel == 3) {
-      Peripheral::CC3E::reset();
+      Peripheral::CCER::CC3E::reset();
     } else if constexpr (channel == 4) {
-      Peripheral::CC4E::reset();
+      Peripheral::CCER::CC4E::reset();
     }
   }
 

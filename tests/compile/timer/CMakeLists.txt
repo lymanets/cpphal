@@ -89,3 +89,11 @@ add_compile_fail_test(
         ${GENERATED_DIR}
         "timer::Pwm: channel is not configured"
 )
+
+add_compile_fail_test(
+        pwm_valid
+        pwm_valid.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "NONE"
+)
