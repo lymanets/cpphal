@@ -40,7 +40,25 @@ private:
     handler::handle();
   }
 
-  using signals_type_pair = meta::mp_list<>;
+  using SignalsMap = meta::mp_list<
+    meta::mp_list<options::Channel<1>, meta::mp_list<core::SignalType<core::SignalKind::Ch1>>>,
+    meta::mp_list<options::Channel<2>, meta::mp_list<core::SignalType<core::SignalKind::Ch2>>>,
+    meta::mp_list<options::Channel<3>, meta::mp_list<core::SignalType<core::SignalKind::Ch3>>>,
+    meta::mp_list<options::Channel<4>, meta::mp_list<core::SignalType<core::SignalKind::Ch4>>>
+  >;
+
+  template <class Entry>
+  using channel_is_used = meta::mp_contains<typename basic::channels, meta::mp_first<Entry>>;
+
+  template <class Entry>
+  using get_signals = meta::mp_first<meta::mp_second<Entry>>;
+
+  using signals_type_pair = meta::mp_append<
+    meta::mp_transform<
+      get_signals,
+      meta::mp_filter<channel_is_used, SignalsMap>
+    >
+  >;
 
 public:
   using irq_binding = irq::Binding<Peripheral::irq_number,
