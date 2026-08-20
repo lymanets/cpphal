@@ -32,8 +32,10 @@ add_compile_fail_test(
 #        "timer::Pwm: initial duty must be in range"
 #)
 #
-#add_compile_fail_test(
-#        pwm_unconfigured_channel
-#        compile/pwm_unconfigured_channel.cpp
-#        "timer::Pwm: channel is not configured"
-#)
+add_compile_fail_test(
+        pwm_unconfigured_channel
+        compile/pwm_unconfigured_channel.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "timer::Pwm: channel is not configured"
+)
