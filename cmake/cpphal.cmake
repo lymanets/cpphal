@@ -1,5 +1,4 @@
 
-include(${CMAKE_CURRENT_LIST_DIR}/mcu_targets.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/python.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/gcc_arm.cmake)
 
