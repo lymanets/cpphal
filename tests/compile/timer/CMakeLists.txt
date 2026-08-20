@@ -4,10 +4,44 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/cpphal.cmake)
 add_custom_target(hal_compile_tests
         COMMAND ${CMAKE_CTEST_COMMAND}
         --output-on-failure
-        -R "^pwm_"
+        -R "\"^(basic_|pwm_)\""
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
+#Basic tests
+add_compile_fail_test(
+        basic_auto_period
+        basic_auto_period.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "timer::Basic: Frequency<> must divide the timer clock exactly"
+)
+
+add_compile_fail_test(
+        basic_zero_frequency
+        basic_zero_frequency.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "timer::Basic: invalid frequency"
+)
+
+add_compile_fail_test(
+        basic_frequency_too_high
+        basic_frequency_too_high.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "timer::Basic: frequency cannot be greater than timer clock"
+)
+
+add_compile_fail_test(
+        basic_valid
+        basic_valid.cpp
+        cpphal::mcu::stm32f103rb
+        ${GENERATED_DIR}
+        "NONE"
+)
+
+# Pwm tests
 add_compile_fail_test(
         pwm_duplicate_channel
         pwm_duplicate_channel.cpp

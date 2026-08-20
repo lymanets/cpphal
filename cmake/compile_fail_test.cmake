@@ -9,6 +9,9 @@ execute_process(
 )
 
 if(RESULT EQUAL 0)
+    if ("NONE" MATCHES "${EXPECTED_ERROR}")
+        return()
+    endif ()
     message(
             FATAL_ERROR
             "Compile-fail test '${SOURCE}' unexpectedly compiled successfully."

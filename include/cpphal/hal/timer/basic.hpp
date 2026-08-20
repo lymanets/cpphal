@@ -44,5 +44,26 @@ public:
   using signals = core::resolve_signals_t<Peripheral, signals_type_pair>;
 
 
+  template <class ClockConfig>
+  static void apply() {
+    using clock_sys = typename ClockConfig::OptionHolder::template get<rcc::tags::Sysclk>;
+    using clock_bus = typename ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
+
+    constexpr auto timer_frequency =
+        clock_bus::frequency == clock_sys::frequency
+          ? clock_bus::frequency
+          : clock_bus::frequency * 2;
+
+    static_assert(
+        basic::frequency::value > 0,
+        "timer::Basic: invalid frequency"
+        );
+    static_assert(
+        basic::frequency::value <= timer_frequency,
+        "timer::Basic: frequency cannot be greater than timer clock"
+        );
+
+    impl::Basic<mcu::policy::value, typename traits<tag<Instance>>::peripheral, Config>::template apply<ClockConfig>();
+  }
 };
 }
