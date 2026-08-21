@@ -1,4 +1,9 @@
-function(add_compile_fail_test NAME SOURCE MCU_TARGET GENERATED_DIR EXPECTED_ERROR)
+function(add_compile_fail_test NAME SOURCE MCU_TARGET EXPECTED_ERROR)
+    get_target_property(
+            GENERATED_DIR
+            ${MCU_TARGET}
+            INTERFACE_GENERATED_DIR
+    )
     include(${GENERATED_DIR}/device.cmake)
     set(TEST_BINARY "${CMAKE_CURRENT_BINARY_DIR}/${NAME}")
 

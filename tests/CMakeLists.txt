@@ -3,7 +3,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpphal.cmake)
 
 enable_testing()
 
-add_mcu_target(stm32f103rb GENERATED_DIR)
+add_mcu_target(stm32f103rb)
 
 add_custom_target(hal_compile_tests
         COMMAND ${CMAKE_CTEST_COMMAND}

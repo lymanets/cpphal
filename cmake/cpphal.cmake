@@ -4,7 +4,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/gcc_arm.cmake)
 
 get_filename_component(__lib_root ${CMAKE_CURRENT_LIST_DIR} DIRECTORY)
 
-function(add_mcu_target PART dir)
+function(add_mcu_target PART)
     string(TOLOWER "${PART}" PART_LOWER)
     string(TOUPPER "${PART}" PART_UPPER)
 
@@ -51,13 +51,14 @@ function(add_mcu_target PART dir)
 
     set(MANIFEST_FILE "${MANIFESTS_DIR}/${MANIFEST_NAME}.yaml")
     set(GENERATED_DIR "${CMAKE_BINARY_DIR}/generated/${PART_LOWER}")
-    set(${dir} ${GENERATED_DIR} PARENT_SCOPE)
     if (TARGET cpphal_mcu_${PART_LOWER})
         return()
     endif ()
     file(MAKE_DIRECTORY ${GENERATED_DIR})
     generate_device(${__lib_root} ${DEVICES_DIR} ${MANIFEST_FILE} ${SVD_FILE} ${GENERATED_DIR})
     add_library(cpphal_mcu_${PART_LOWER} INTERFACE)
+
+    set_target_properties(cpphal_mcu_${PART_LOWER} PROPERTIES INTERFACE_GENERATED_DIR ${GENERATED_DIR})
 
     add_library(
             cpphal::mcu::${PART_LOWER}
@@ -86,7 +87,12 @@ endfunction()
 
 function(cpphal_create_firmware TARGET PART SRCS FLASH_BASE VECT_TAB_OFFSET)
     include(${__lib_root}/cmake/hal_configure.cmake)
-    add_mcu_target(${PART} GENERATED_DIR)
+    add_mcu_target(${PART})
+    get_target_property(
+            GENERATED_DIR
+            cpphal::mcu::${PART}
+            INTERFACE_GENERATED_DIR
+    )
     string(TOLOWER "${PART}" PART)
 
     add_executable(${TARGET} ${SRCS} ${__lib_root}/src/cpphal/reset_handler.cpp)

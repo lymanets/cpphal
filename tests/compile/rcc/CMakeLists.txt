@@ -5,7 +5,6 @@ add_compile_fail_test(
         rcc_valid
         rcc_valid.cpp
         cpphal::mcu::stm32f103rb
-        ${GENERATED_DIR}
         "NONE"
 )
 
@@ -13,7 +12,6 @@ add_compile_fail_test(
         rcc_invalid_ahb
         rcc_invalid_ahb.cpp
         cpphal::mcu::stm32f103rb
-        ${GENERATED_DIR}
         "rcc: Invalid AHB frequency"
 )
 
@@ -21,7 +19,6 @@ add_compile_fail_test(
         rcc_invalid_apb1
         rcc_invalid_apb1.cpp
         cpphal::mcu::stm32f103rb
-        ${GENERATED_DIR}
         "rcc: Invalid APB1 frequency"
 )
 
@@ -29,7 +26,6 @@ add_compile_fail_test(
         rcc_invalid_apb2
         rcc_invalid_apb2.cpp
         cpphal::mcu::stm32f103rb
-        ${GENERATED_DIR}
         "rcc: Invalid APB2 frequency"
 )
 
@@ -37,7 +33,6 @@ add_compile_fail_test(
         rcc_invalid_sysclk
         rcc_invalid_sysclk.cpp
         cpphal::mcu::stm32f103rb
-        ${GENERATED_DIR}
         "rcc: PLL multiplier not found"
 )
 
