@@ -10,35 +10,6 @@ struct Basic<mcu::policy::STM32F1Policy, Peripheral, Config> {
 private:
   using basic = BasicConfig<Peripheral, Config>;
 
-  template <std::uint32_t Clock, std::uint32_t Frequency, bool AutoPeriod>
-  struct PrescalerARR {
-    static_assert(Clock % Frequency == 0 || AutoPeriod,
-                  "timer::Basic: Frequency<> must divide the timer clock exactly; "
-                  "enable AutoPeriod to automatically calculate PSC and ARR");
-    static constexpr std::uint32_t Divisor = Clock / Frequency;
-
-    static constexpr auto solve() {
-      for (std::uint32_t psc = 0; psc <= 0xFFFF; ++psc) {
-        const auto divider = psc + 1;
-
-        if (Divisor % divider != 0) continue;
-
-        const auto arr = Divisor / divider - 1;
-
-        if (arr <= 0xFFFF) {
-          return std::pair{psc, arr};
-        }
-      }
-      static_assert(Clock % Frequency == 0 || AutoPeriod, "Can not find prescaler and period");
-      return std::pair<uint32_t, uint32_t>{0xFFFFFFFF, 0xFFFFFFFF};
-    }
-
-    static constexpr auto value = solve();
-
-    static constexpr std::uint32_t prescaler = value.first;
-    static constexpr std::uint32_t period    = value.second;
-  };
-
 public:
   template <class ClockConfig>
   static void apply() {
@@ -48,14 +19,19 @@ public:
     constexpr auto timer_frequency = clock_bus::frequency * m;
     constexpr auto auto_period     = !std::is_same_v<typename basic::auto_period, void>;
     Peripheral::CR1::CEN::reset();
-    using psc_arr = PrescalerARR<timer_frequency,
-                                 basic::frequency::value,
-                                 auto_period>;
-
+    using psc_arr = detail::PrescalerARR<timer_frequency,
+                                         basic::frequency::value>;
+    static_assert(
+        timer_frequency % basic::frequency::value == 0 || auto_period,
+        "timer::Basic: Frequency<> must divide the timer clock exactly; "
+        "enable AutoPeriod to automatically calculate PSC and ARR");
+    static_assert(
+        psc_arr::valid,
+        "timer::Basic: requested frequency cannot be generated");
     if constexpr (auto_period) {
       constexpr auto timer_freq = timer_frequency / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
       static_assert(timer_freq == basic::frequency::value,
-                    "Can not find prescaler and period");
+                    "timer::Basic: Can not find prescaler and period");
 
       Peripheral::PSC::write(psc_arr::prescaler);
       Peripheral::ARR::write(psc_arr::period);

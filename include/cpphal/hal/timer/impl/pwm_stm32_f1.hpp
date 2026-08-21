@@ -33,37 +33,11 @@ struct PwmModeImpl<options::pwm_mode::ActiveLow> {
 template <int Instance, class Config>
 struct Pwm<mcu::policy::STM32F1Policy, Instance, Config> {
 private:
-  using instance_t = traits<tag<Instance>>;
-  using Peripheral = instance_t::peripheral;
+  using instance_t              = traits<tag<Instance>>;
+  using Peripheral              = instance_t::peripheral;
   static inline uint32_t period = 0;
 
   using basic = PwmConfig<Peripheral, Config>;
-
-  template <std::uint32_t Clock, std::uint32_t Frequency, bool AutoPeriod>
-  struct PrescalerARR {
-    static constexpr std::uint32_t Divisor = Clock / Frequency;
-
-    static constexpr auto solve() {
-      for (std::uint32_t psc = 0; psc <= 0xFFFF; ++psc) {
-        const auto divider = psc + 1;
-
-        if (Divisor % divider != 0) continue;
-
-        const auto arr = Divisor / divider - 1;
-
-        if (arr <= 0xFFFF) {
-          return std::pair{psc, arr};
-        }
-      }
-      static_assert(Clock % Frequency == 0 || AutoPeriod, "timer::Pwm: can not find prescaler and period");
-      return std::pair<uint32_t, uint32_t>{0xFFFFFFFF, 0xFFFFFFFF};
-    }
-
-    static constexpr auto value = solve();
-
-    static constexpr std::uint32_t prescaler = value.first;
-    static constexpr std::uint32_t period    = value.second;
-  };
 
   using channels = basic::channels;
 
@@ -79,7 +53,10 @@ public:
     static_assert(PwmModeImpl<typename basic::pwm_mode>::valid, "timer::Pwm: invalid PWM mode");
 
     Peripheral::CR1::CEN::reset();
-    using psc_arr = PrescalerARR<timer_frequency, basic::frequency::value, true>;
+    using psc_arr = detail::PrescalerARR<timer_frequency, basic::frequency::value>;
+    static_assert(
+        psc_arr::valid,
+        "timer::Pwm: requested frequency cannot be generated exactly");
 
     constexpr auto initial_duty = (psc_arr::period * basic::initial_duty::value) / 100;
     constexpr auto timer_freq   = timer_frequency / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
