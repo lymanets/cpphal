@@ -14,7 +14,10 @@ struct Pwm
     : core::ConfiguratorSingleBase<typename traits<tag<Instance>>::peripheral>,
       impl::Pwm<mcu::policy::value, Instance, Config> {
 private:
-  using Peripheral = traits<tag<Instance>>::peripheral;
+  using instance_t = traits<tag<Instance>>;
+  static_assert(instance_t::type != Type::Basic, "timer::Pwm: Instance does not support PWM");
+
+  using Peripheral = instance_t::peripheral;
 
   using basic = impl::PwmConfig<Peripheral, Config>;
 

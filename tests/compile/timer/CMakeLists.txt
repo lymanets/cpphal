@@ -74,6 +74,13 @@ add_compile_fail_test(
 )
 
 add_compile_fail_test(
+        pwm_invalid_timer
+        pwm_invalid_timer.cpp
+        cpphal::mcu::stm32f101re
+        "timer::Pwm: Instance does not support PWM"
+)
+
+add_compile_fail_test(
         pwm_valid
         pwm_valid.cpp
         cpphal::mcu::stm32f103rb
