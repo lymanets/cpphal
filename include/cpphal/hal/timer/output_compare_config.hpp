@@ -2,14 +2,21 @@
 #include "meta/meta.hpp"
 
 #include "hal/core/option_holder.hpp"
-
+#include "hal/timer/channel_config.hpp"
 #include "hal/timer/options.hpp"
 
 namespace hal::timer::config {
+
 template <class... Options>
 struct OutputCompare : core::OptionHolder<Options...> {
 private:
   using options_t = typename core::OptionHolder<Options...>::options;
+
+  template <class Tag>
+  struct get_channel_tag {
+    template <class T>
+    using fn = impl::channel_get<T, typename T::tag>::type;
+  };
 
   template <class Tag>
   struct get_tag {
@@ -27,7 +34,7 @@ private:
 
   using Channels = meta::mp_copy_if_q<
     options_t,
-    is_tag<tags::Channel>
+    is_tag<tags::ChannelConfig>
   >;
 
 public:
@@ -37,13 +44,8 @@ public:
         tags::Frequency>::value == 1,
       "timer::OutputCompare: Exactly one Frequency<> must be specified.");
 
-  static_assert(
-    meta::mp_count<
-      meta::mp_transform_q<get_tag<tags::InitialCompare>, options_t>,
-      tags::InitialCompare>::value == 1,
-    "timer::OutputCompare: Exactly one InitialCompare<> must be specified.");
-
-  using NumberOfChannels = meta::mp_count<meta::mp_transform_q<get_tag<tags::Channel>, options_t>, tags::Channel>;
+  using NumberOfChannels = meta::mp_count<meta::mp_transform_q<get_channel_tag<tags::ChannelConfig>, options_t>,
+                                          tags::Channel>;
 
   static_assert(
       NumberOfChannels::value > 0 && NumberOfChannels::value <= 4,

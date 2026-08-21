@@ -38,10 +38,16 @@ using PwmTimer = hal::timer::Pwm<
   3,
   hal::timer::config::Pwm<
     hal::timer::options::Frequency<20_kHz>,
-    hal::timer::options::Channel<1>,
-    hal::timer::options::Channel<2>,
-    hal::timer::options::InitialDuty<20>,
-    hal::timer::options::pwm_mode::ActiveHigh
+    hal::timer::config::Channel<
+      hal::timer::options::Channel<1>,
+      hal::timer::options::Initial<20>,
+      hal::timer::options::pwm_mode::ActiveHigh
+    >,
+    hal::timer::config::Channel<
+      hal::timer::options::Channel<2>,
+      hal::timer::options::Initial<20>,
+      hal::timer::options::pwm_mode::ActiveHigh
+    >
   >
 >;
 
@@ -49,10 +55,16 @@ using OutputCompareTimer = hal::timer::OutputCompare<
   4,
   hal::timer::config::OutputCompare<
     hal::timer::options::Frequency<20_kHz>,
-    hal::timer::options::Channel<1>,
-    hal::timer::options::Channel<2>,
-    hal::timer::options::InitialCompare<20>,
-    hal::timer::options::output_compare_mode::Toggle
+    hal::timer::config::Channel<
+      hal::timer::options::Channel<1>,
+      hal::timer::options::Initial<20>,
+      hal::timer::options::output_compare_mode::Toggle
+    >,
+    hal::timer::config::Channel<
+      hal::timer::options::Channel<2>,
+      hal::timer::options::Initial<20>,
+      hal::timer::options::output_compare_mode::Toggle
+    >
   >
 >;
 

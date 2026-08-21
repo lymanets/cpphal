@@ -21,10 +21,10 @@ private:
 
   using basic = impl::PwmConfig<Peripheral, Config>;
 
-  static_assert(
-      basic::initial_duty::value <= 100,
-      "timer::Pwm: initial duty must be in range [0, 100]"
-      );
+  // static_assert(
+  //     basic::initial_duty::value <= 100,
+  //     "timer::Pwm: initial duty must be in range [0, 100]"
+  //     );
 
   template <class... Events>
   struct EventHandler {

@@ -44,7 +44,7 @@ uart:
         - Rts
         - Cts
         - RtsCts
-    
+
     - name: Events
       kind: varargs
       tag: Events
@@ -146,11 +146,11 @@ timer:
       type: std::uint32_t
       tag: Channel
       default: 1
-    
-    - name: InitialDuty
+
+    - name: Initial
       kind: value
       type: std::uint32_t
-      tag: InitialDuty
+      tag: Initial
       default: 50
 
     - name: pwm_mode
@@ -166,12 +166,6 @@ timer:
       option_values:
         - ActiveHigh
         - ActiveLow
-
-    - name: InitialCompare
-      kind: value
-      type: std::uint32_t
-      tag: InitialCompare
-      default: 50
 
     - name: output_compare_mode
       kind: enum

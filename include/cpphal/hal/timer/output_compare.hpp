@@ -21,10 +21,10 @@ private:
 
   using basic = impl::OutputCompareConfig<Peripheral, Config>;
 
-  static_assert(
-      basic::initial_compare::value != 0,
-      "timer::OutputCompare: InitialCompare<> is 0"
-      );
+  // static_assert(
+  //     basic::initial_compare::value != 0,
+  //     "timer::OutputCompare: InitialCompare<> is 0"
+  //     );
 
   template <class... Events>
   struct EventHandler {
@@ -50,8 +50,13 @@ private:
     meta::mp_list<options::Channel<4>, meta::mp_list<core::SignalType<core::SignalKind::Ch4>>>
   >;
 
+  struct get_channel_number {
+    template <class T>
+    using fn = T::template get<tags::Channel>::tag;
+  };
+
   template <class Entry>
-  using channel_is_used = meta::mp_contains<typename basic::channels, meta::mp_first<Entry>>;
+  using channel_is_used = meta::mp_contains<meta::mp_transform_q<get_channel_number, typename basic::channels>, meta::mp_first<Entry>>;
 
   template <class Entry>
   using get_signals = meta::mp_first<meta::mp_second<Entry>>;

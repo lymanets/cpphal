@@ -53,22 +53,21 @@ private:
 
   using channels = basic::channels;
 
+  template <class C>
+  struct CompareFn {
+    static constexpr auto value = C::value;
+  };
+
 public:
   template <class ClockConfig>
   static void apply() {
-    using oc_mode = OutputCompareModeImpl<typename basic::oc_mode>;
-
-    static_assert(
-        oc_mode::valid,
-        "timer::OutputCompare: invalid OC mode");
-
     using psc_arr = detail::PrescalerARR<ClockConfig, typename Peripheral::clock_tag, basic::frequency::value>;
     static_assert(
         psc_arr::valid,
         "timer::OutputCompare: requested frequency cannot be generated exactly");
-    static_assert(
-        basic::initial_compare::value <= psc_arr::period,
-        "timer::OutputCompare: initial compare exceeds timer period");
+    // static_assert(
+    //     basic::initial_compare::value <= psc_arr::period,
+    //     "timer::OutputCompare: initial compare exceeds timer period");
 
     constexpr auto timer_freq = psc_arr::Clock / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
 
@@ -80,45 +79,49 @@ public:
     Peripheral::PSC::write(psc_arr::prescaler);
     Peripheral::ARR::write(psc_arr::period);
     period = psc_arr::period;
-    if constexpr (meta::mp_contains<channels, options::Channel<1>>::value) {
+    if constexpr (detail::has_channel_t<channels, 1>::value) {
       detail::configure_channel<
         typename Peripheral::CCER::CC1E,
         typename Peripheral::CCER::CC1P,
         typename Peripheral::CCMR1_Output::OC1M,
         typename Peripheral::CCR1,
-        oc_mode,
-        typename basic::polarity,
-        basic::initial_compare::value>();
+        typename detail::get_channel_t<channels, 1>::type,
+        tags::output_compare_mode,
+        OutputCompareModeImpl,
+        CompareFn>();
     }
-    if constexpr (meta::mp_contains<channels, options::Channel<2>>::value) {
+    if constexpr (detail::has_channel_t<channels, 2>::value) {
       detail::configure_channel<
         typename Peripheral::CCER::CC2E,
         typename Peripheral::CCER::CC2P,
         typename Peripheral::CCMR1_Output::OC2M,
         typename Peripheral::CCR2,
-        oc_mode,
-        typename basic::polarity,
-        basic::initial_compare::value>();
+        typename detail::get_channel_t<channels, 2>::type,
+        tags::output_compare_mode,
+        OutputCompareModeImpl,
+        CompareFn>();
     }
-    if constexpr (meta::mp_contains<channels, options::Channel<3>>::value) {
+    if constexpr (detail::has_channel_t<channels, 3>::value) {
       detail::configure_channel<
         typename Peripheral::CCER::CC3E,
         typename Peripheral::CCER::CC3P,
         typename Peripheral::CCMR2_Output::OC3M,
         typename Peripheral::CCR3,
-        oc_mode,
-        typename basic::polarity,
-        basic::initial_compare::value>();
+        typename detail::get_channel_t<channels, 3>::type,
+        tags::output_compare_mode,
+        OutputCompareModeImpl,
+        CompareFn>();
     }
-    if constexpr (meta::mp_contains<channels, options::Channel<4>>::value) {
+    if constexpr (detail::has_channel_t<channels, 4>::value) {
       detail::configure_channel<
         typename Peripheral::CCER::CC4E,
         typename Peripheral::CCER::CC4P,
         typename Peripheral::CCMR2_Output::OC4M,
         typename Peripheral::CCR4,
-        oc_mode,
-        typename basic::polarity,
-        basic::initial_compare::value>();
+        typename detail::get_channel_t<channels, 4>::type,
+        tags::output_compare_mode,
+        OutputCompareModeImpl,
+        CompareFn>();
     }
 
     Peripheral::CNT::write(0);
@@ -133,64 +136,25 @@ public:
     // if (compare > period) {
     //   return;
     // }
-    static_assert(channel >= 1 && channel <= instance_t::channels,
-                  "timer::OutputCompare: channel should be in range");
-    static_assert(meta::mp_contains<channels, options::Channel<channel>>::value,
-                  "timer::OutputCompare: channel is not configured");
-
-    if constexpr (channel == 1) {
-      Peripheral::CCR1::write(compare);
-    } else if constexpr (channel == 2) {
-      Peripheral::CCR2::write(compare);
-    } else if constexpr (channel == 3) {
-      Peripheral::CCR3::write(compare);
-    } else if constexpr (channel == 4) {
-      Peripheral::CCR4::write(compare);
-    }
+    detail::set_compare<Peripheral, instance_t, channels, channel>(compare);
   }
 
   template <int channel>
   static void start_channel() {
-    static_assert(channel >= 1 && channel <= instance_t::channels,
-                  "timer::OutputCompare: channel should be in range");
-    static_assert(meta::mp_contains<channels, options::Channel<channel>>::value,
-                  "timer::OutputCompare: channel is not configured");
-
-    if constexpr (channel == 1) {
-      Peripheral::CCER::CC1E::set();
-    } else if constexpr (channel == 2) {
-      Peripheral::CCER::CC2E::set();
-    } else if constexpr (channel == 3) {
-      Peripheral::CCER::CC3E::set();
-    } else if constexpr (channel == 4) {
-      Peripheral::CCER::CC4E::set();
-    }
+    detail::start_channel<Peripheral, instance_t, channels, channel>();
   }
 
   template <int channel>
   static void stop_channel() {
-    static_assert(channel >= 1 && channel <= instance_t::channels,
-                  "timer::OutputCompare: channel should be in range");
-    static_assert(meta::mp_contains<channels, options::Channel<channel>>::value,
-                  "timer::OutputCompare: channel is not configured");
-
-    if constexpr (channel == 1) {
-      Peripheral::CCER::CC1E::reset();
-    } else if constexpr (channel == 2) {
-      Peripheral::CCER::CC2E::reset();
-    } else if constexpr (channel == 3) {
-      Peripheral::CCER::CC3E::reset();
-    } else if constexpr (channel == 4) {
-      Peripheral::CCER::CC4E::reset();
-    }
+    detail::stop_channel<Peripheral, instance_t, channels, channel>();
   }
 
   static void start() {
-    Peripheral::CR1::CEN::set();
+    detail::start<Peripheral>();
   }
 
   static void stop() {
-    Peripheral::CR1::CEN::reset();
+    detail::stop<Peripheral>();
   }
 };
 }

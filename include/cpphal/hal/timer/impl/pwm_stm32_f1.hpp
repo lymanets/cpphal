@@ -41,20 +41,24 @@ private:
 
   using channels = basic::channels;
 
+  template <auto P>
+  struct CompareFn {
+    template <class C>
+    struct fn {
+      static constexpr auto value = (P * C::value) / 100;
+    };
+  };
+
 public:
   template <class ClockConfig>
   static void apply() {
-    using pwm_mode = PwmModeImpl<typename basic::pwm_mode>;
-    static_assert(pwm_mode::valid, "timer::Pwm: invalid PWM mode");
-
     Peripheral::CR1::CEN::reset();
     using psc_arr = detail::PrescalerARR<ClockConfig, typename Peripheral::clock_tag, basic::frequency::value>;
     static_assert(
         psc_arr::valid,
         "timer::Pwm: requested frequency cannot be generated exactly");
 
-    constexpr auto initial_duty = (psc_arr::period * basic::initial_duty::value) / 100;
-    constexpr auto timer_freq   = psc_arr::Clock / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
+    constexpr auto timer_freq = psc_arr::Clock / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
 
     static_assert(timer_freq == basic::frequency::value,
                   "timer::Pwm: requested frequency cannot be generated exactly with PSC and ARR");
@@ -62,45 +66,49 @@ public:
     Peripheral::PSC::write(psc_arr::prescaler);
     Peripheral::ARR::write(psc_arr::period);
     period = psc_arr::period;
-    if constexpr (meta::mp_contains<channels, options::Channel<1>>::value) {
+    if constexpr (detail::has_channel_t<channels, 1>::value) {
       detail::configure_channel<
         typename Peripheral::CCER::CC1E,
         typename Peripheral::CCER::CC1P,
         typename Peripheral::CCMR1_Output::OC1M,
         typename Peripheral::CCR1,
-        pwm_mode,
-        typename basic::polarity,
-        initial_duty>();
+        typename detail::get_channel_t<channels, 1>::type,
+        tags::output_compare_mode,
+        PwmModeImpl,
+        CompareFn<psc_arr::period>::template fn>();
     }
-    if constexpr (meta::mp_contains<channels, options::Channel<2>>::value) {
+    if constexpr (detail::has_channel_t<channels, 2>::value) {
       detail::configure_channel<
         typename Peripheral::CCER::CC2E,
         typename Peripheral::CCER::CC2P,
         typename Peripheral::CCMR1_Output::OC2M,
         typename Peripheral::CCR2,
-        pwm_mode,
-        typename basic::polarity,
-        initial_duty>();
+        typename detail::get_channel_t<channels, 2>::type,
+        tags::output_compare_mode,
+        PwmModeImpl,
+        CompareFn<psc_arr::period>::template fn>();
     }
-    if constexpr (meta::mp_contains<channels, options::Channel<3>>::value) {
+    if constexpr (detail::has_channel_t<channels, 3>::value) {
       detail::configure_channel<
         typename Peripheral::CCER::CC3E,
         typename Peripheral::CCER::CC3P,
         typename Peripheral::CCMR2_Output::OC3M,
         typename Peripheral::CCR3,
-        pwm_mode,
-        typename basic::polarity,
-        initial_duty>();
+        typename detail::get_channel_t<channels, 3>::type,
+        tags::output_compare_mode,
+        PwmModeImpl,
+        CompareFn<psc_arr::period>::template fn>();
     }
-    if constexpr (meta::mp_contains<channels, options::Channel<4>>::value) {
+    if constexpr (detail::has_channel_t<channels, 4>::value) {
       detail::configure_channel<
         typename Peripheral::CCER::CC4E,
         typename Peripheral::CCER::CC4P,
         typename Peripheral::CCMR2_Output::OC4M,
         typename Peripheral::CCR4,
-        pwm_mode,
-        typename basic::polarity,
-        initial_duty>();
+        typename detail::get_channel_t<channels, 4>::type,
+        tags::output_compare_mode,
+        PwmModeImpl,
+        CompareFn<psc_arr::period>::template fn>();
     }
 
     Peripheral::CNT::write(0);
@@ -115,65 +123,27 @@ public:
     if (duty > 100) {
       return;
     }
-    static_assert(channel >= 1 && channel <= instance_t::channels,
-                  "timer::Pwm: channel should be in range");
-    static_assert(meta::mp_contains<channels, options::Channel<channel>>::value,
-                  "timer::Pwm: channel is not configured");
 
     uint16_t ccr_value = (period * duty) / 100;
-    if constexpr (channel == 1) {
-      Peripheral::CCR1::write(ccr_value);
-    } else if constexpr (channel == 2) {
-      Peripheral::CCR2::write(ccr_value);
-    } else if constexpr (channel == 3) {
-      Peripheral::CCR3::write(ccr_value);
-    } else if constexpr (channel == 4) {
-      Peripheral::CCR4::write(ccr_value);
-    }
+    detail::set_compare<Peripheral, instance_t, channels, channel>(ccr_value);
   }
 
   template <int channel>
   static void start_channel() {
-    static_assert(channel >= 1 && channel <= instance_t::channels,
-                  "timer::Pwm: channel should be in range");
-    static_assert(meta::mp_contains<channels, options::Channel<channel>>::value,
-                  "timer::Pwm: channel is not configured");
-
-    if constexpr (channel == 1) {
-      Peripheral::CCER::CC1E::set();
-    } else if constexpr (channel == 2) {
-      Peripheral::CCER::CC2E::set();
-    } else if constexpr (channel == 3) {
-      Peripheral::CCER::CC3E::set();
-    } else if constexpr (channel == 4) {
-      Peripheral::CCER::CC4E::set();
-    }
+    detail::start_channel<Peripheral, instance_t, channels, channel>();
   }
 
   template <int channel>
   static void stop_channel() {
-    static_assert(channel >= 1 && channel <= instance_t::channels,
-                  "timer::Pwm: channel should be in range");
-    static_assert(meta::mp_contains<channels, options::Channel<channel>>::value,
-                  "timer::Pwm: channel is not configured");
-
-    if constexpr (channel == 1) {
-      Peripheral::CCER::CC1E::reset();
-    } else if constexpr (channel == 2) {
-      Peripheral::CCER::CC2E::reset();
-    } else if constexpr (channel == 3) {
-      Peripheral::CCER::CC3E::reset();
-    } else if constexpr (channel == 4) {
-      Peripheral::CCER::CC4E::reset();
-    }
+    detail::stop_channel<Peripheral, instance_t, channels, channel>();
   }
 
   static void start() {
-    Peripheral::CR1::CEN::set();
+    detail::start<Peripheral>();
   }
 
   static void stop() {
-    Peripheral::CR1::CEN::reset();
+    detail::stop<Peripheral>();
   }
 };
 }
