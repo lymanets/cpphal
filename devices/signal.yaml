@@ -68,3 +68,11 @@ signals:
     config: AlternatePushPull
   CLK:
     config: AlternatePushPull
+
+  # DAC
+  OUT*:
+    config: Analog
+
+  # ADC
+  IN*:
+    config: Analog
