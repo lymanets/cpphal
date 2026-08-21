@@ -13,8 +13,8 @@ struct EmptyList {
 };
 
 struct no_duplicate {
-
-  static void test() {}
+  static void test() {
+  }
 };
 
 struct identity {
@@ -37,11 +37,7 @@ private:
 
   using key = mp_invoke_q<KeyFn, Head>;
 
-  static constexpr bool found =
-  (mp_count<
-     mp_transform_q<KeyFn, tail>,
-     key
-   >::value != 0);
+  static constexpr bool found = (mp_count<mp_transform_q<KeyFn, tail>, key>::value != 0);
 
 public:
   using type = std::conditional_t<
@@ -52,6 +48,30 @@ public:
 };
 
 template <class List, class KeyFn = identity>
-using find_first_duplicate_t =
-typename find_first_duplicate<List, KeyFn>::type;
+using find_first_duplicate_t = typename find_first_duplicate<List, KeyFn>::type;
+
+template <class List, class KeyFn>
+struct find_duplicates;
+
+template <class KeyFn>
+struct find_duplicates<mp_list<>, KeyFn> {
+  using type = mp_list<>;
+};
+
+template <class Head, class... Tail, class KeyFn>
+struct find_duplicates<mp_list<Head, Tail...>, KeyFn> {
+private:
+  using tail = mp_list<Tail...>;
+  using key  = mp_invoke_q<KeyFn, Head>;
+
+  static constexpr bool found = mp_count<mp_transform_q<KeyFn, tail>, key>::value != 0;
+
+  using rest = typename find_duplicates<tail, KeyFn>::type;
+
+public:
+  using type = std::conditional_t<found, mp_push_front<rest, Head>, rest>;
+};
+
+template <class List, class KeyFn = identity>
+using find_duplicates_t = typename find_duplicates<List, KeyFn>::type;
 }

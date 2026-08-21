@@ -33,7 +33,7 @@ template <class Peripheral, class Signals>
 struct resolve_signals_impl {
   using type = meta::mp_transform_q<
     resolve_signals<Peripheral>,
-  Signals
+    Signals
   >;
 };
 
@@ -57,7 +57,7 @@ template <class Peripheral, SignalKind Kind, class Pin>
 struct Signal {
   using signal_tag = SignalTag;
   using peripheral = Peripheral;
-  using pin = Pin;
+  using pin        = Pin;
 
   static constexpr SignalKind kind = Kind;
 };

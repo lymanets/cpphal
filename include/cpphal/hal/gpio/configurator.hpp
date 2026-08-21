@@ -38,8 +38,7 @@ struct get_pin_impl<Pins, Port, N, meta::mp_size<Pins>> {
 
 template <class... Pins>
 struct Configurator : core::ConfiguratorBase<internal::get_port, internal::get_pin, Pins...> {
-  static_assert((internal::PinType<Pins> && ...),
-                "Configurator accepts only gpio::Pin<...> types.");
+  static_assert((internal::PinType<Pins> && ...), "gpio: Configurator accepts only gpio::Pin<...> types.");
 
 private:
   template <class Port, uint8_t N>
@@ -103,8 +102,8 @@ public:
     using all_pins = meta::mp_append<
       typename transform_to_pin_impl_t<meta::mp_list<Pins...>>::type,
       typename transform_to_pin_impl_t<Signals>::type>;
-    using HasDuplicates = meta::find_first_duplicate_t<all_pins, get_pin>;
-    HasDuplicates::test(); // an error if duplicate is found
+    using duplicates = meta::find_duplicates_t<all_pins, get_pin>;
+    static_assert(meta::mp_size<duplicates>::value == 0, "gpio: Pin is already configured");
 
     using Group = meta::group_by<get_cr_reg, internal::get_pin, all_pins>;
     using Regs  = meta::mp_transform_q<mask::pair_to_update_q<mask_traits>, Group>;
