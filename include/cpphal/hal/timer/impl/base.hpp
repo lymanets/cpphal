@@ -79,35 +79,41 @@ static constexpr void configure_channel() {
 template <class ClockConfig, class ClockTag, std::uint32_t Frequency, class CounterType = std::uint16_t>
 struct PrescalerARR {
 private:
-  using clock_sys                       = ClockConfig::OptionHolder::template get<rcc::tags::Sysclk>;
-  using clock_bus                       = ClockConfig::OptionHolder::template get<ClockTag>;
-  static constexpr auto m               = clock_bus::frequency == clock_sys::frequency ? 1 : 2;
+  using clock_sys         = ClockConfig::OptionHolder::template get<rcc::tags::Sysclk>;
+  using clock_bus         = ClockConfig::OptionHolder::template get<ClockTag>;
+  static constexpr auto m = clock_bus::frequency == clock_sys::frequency ? 1 : 2;
 
 public:
-  static constexpr auto Clock = clock_bus::frequency * m;
+  static constexpr auto          Clock   = clock_bus::frequency * m;
   static constexpr std::uint32_t Divisor = Clock / Frequency;
 
 private:
   static constexpr CounterType MaxARR = std::is_same_v<CounterType, std::uint32_t> ? 0xFFFFFFFF : 0xFFFF;
 
-  static constexpr auto solve() {
+  struct Result {
+    bool        valid;
+    CounterType prescaler;
+    CounterType period;
+  };
+
+  static constexpr Result solve() {
     for (std::uint32_t psc = 0; psc <= MaxARR; ++psc) {
       const auto divider = psc + 1;
       if (Clock / divider < Frequency) break;
       if (Clock % divider != 0) continue;
       const auto arr = Divisor / divider - 1;
-      if (arr <= MaxARR) return std::pair{static_cast<CounterType>(psc), static_cast<CounterType>(arr)};
+      if (arr <= MaxARR) return Result{true, static_cast<CounterType>(psc), static_cast<CounterType>(arr)};
     }
 
-    return std::pair<CounterType, CounterType>{0xFFFFFFFF, 0xFFFFFFFF};
+    return Result{false, 0, 0};
   }
 
   static constexpr auto value = solve();
 
 public:
-  static constexpr bool valid     = value.first != 0xFFFFFFFF;
-  static constexpr auto prescaler = value.first;
-  static constexpr auto period    = value.second;
+  static constexpr bool valid     = value.valid;
+  static constexpr auto prescaler = value.prescaler;
+  static constexpr auto period    = value.period;
 };
 }
 }
