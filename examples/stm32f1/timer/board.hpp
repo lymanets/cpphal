@@ -45,11 +45,23 @@ using PwmTimer = hal::timer::Pwm<
   >
 >;
 
+using OutputCompareTimer = hal::timer::OutputCompare<
+  4,
+  hal::timer::config::OutputCompare<
+    hal::timer::options::Frequency<20_kHz>,
+    hal::timer::options::Channel<1>,
+    hal::timer::options::Channel<2>,
+    hal::timer::options::InitialCompare<20>,
+    hal::timer::options::output_compare_mode::Toggle
+  >
+>;
+
 using BoardConfig = hal::Configurator<
   System,
   SystemTimer,
   GpioConfig,
   LogUart,
   BasicTimer,
-  PwmTimer
+  PwmTimer,
+  OutputCompareTimer
 >;

@@ -166,6 +166,22 @@ timer:
       option_values:
         - ActiveHigh
         - ActiveLow
+
+    - name: InitialCompare
+      kind: value
+      type: std::uint32_t
+      tag: InitialCompare
+      default: 50
+
+    - name: output_compare_mode
+      kind: enum
+      tag: output_compare_mode
+      option_values:
+        - Frozen
+        - Active
+        - Inactive
+        - Toggle
+
     - name: Events
       kind: varargs
       tag: Events

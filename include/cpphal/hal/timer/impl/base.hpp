@@ -47,6 +47,21 @@ struct PwmConfig {
   using enables = core::event_enable_bits_t<events>;
 };
 
+template <class Peripheral, class Config>
+struct OutputCompareConfig {
+  using peripheral = Peripheral;
+
+  using frequency       = Config::template get<tags::Frequency>;
+  using channels        = Config::template get_list<tags::Channel>;
+  using polarity        = Config::template get<tags::polarity>;
+  using initial_compare = Config::template get<tags::InitialCompare>;
+  using oc_mode         = Config::template get<tags::output_compare_mode>;
+
+
+  using events  = core::resolve_events_t<Peripheral, typename Config::template get<tags::Events>>;
+  using enables = core::event_enable_bits_t<events>;
+};
+
 namespace detail {
 template <class CCxE, class CCxP, class OCxM, class CCRx,
           class Mode, class Polarity, auto Compare>
