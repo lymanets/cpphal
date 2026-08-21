@@ -40,6 +40,7 @@ struct PwmConfig {
   using channels     = Config::template get_list<tags::Channel>;
   using initial_duty = Config::template get<tags::InitialDuty>;
   using pwm_mode     = Config::template get<tags::pwm_mode>;
+  using polarity     = Config::template get<tags::polarity>;
 
 
   using events  = core::resolve_events_t<Peripheral, typename Config::template get<tags::Events>>;
@@ -47,6 +48,19 @@ struct PwmConfig {
 };
 
 namespace detail {
+template <class CCxE, class CCxP, class OCxM, class CCRx,
+          class Mode, class Polarity, auto Compare>
+static constexpr void configure_channel() {
+  CCxE::reset();
+  OCxM::write(Mode::value);
+  if constexpr (std::is_same_v<Polarity, options::polarity::ActiveLow>) {
+    CCxP::set();
+  } else {
+    CCxP::reset();
+  }
+  CCRx::write(Compare);
+}
+
 template <std::uint32_t Clock, std::uint32_t Frequency, class CounterType = std::uint16_t>
 struct PrescalerARR {
   static constexpr std::uint32_t Divisor = Clock / Frequency;

@@ -48,9 +48,9 @@ public:
     using clock_bus                = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
     constexpr auto m               = clock_bus::frequency == clock_sys::frequency ? 1 : 2;
     constexpr auto timer_frequency = clock_bus::frequency * m;
-    constexpr auto pwm_mode        = PwmModeImpl<typename basic::pwm_mode>::value;
 
-    static_assert(PwmModeImpl<typename basic::pwm_mode>::valid, "timer::Pwm: invalid PWM mode");
+    using pwm_mode = PwmModeImpl<typename basic::pwm_mode>;
+    static_assert(pwm_mode::valid, "timer::Pwm: invalid PWM mode");
 
     Peripheral::CR1::CEN::reset();
     using psc_arr = detail::PrescalerARR<timer_frequency, basic::frequency::value>;
@@ -68,20 +68,44 @@ public:
     Peripheral::ARR::write(psc_arr::period);
     period = psc_arr::period;
     if constexpr (meta::mp_contains<channels, options::Channel<1>>::value) {
-      Peripheral::CCMR1_Output::OC1M::write(pwm_mode);
-      Peripheral::CCR1::write(initial_duty);
+      detail::configure_channel<
+        typename Peripheral::CCER::CC1E,
+        typename Peripheral::CCER::CC1P,
+        typename Peripheral::CCMR1_Output::OC1M,
+        typename Peripheral::CCR1,
+        pwm_mode,
+        typename basic::polarity,
+        initial_duty>();
     }
     if constexpr (meta::mp_contains<channels, options::Channel<2>>::value) {
-      Peripheral::CCMR1_Output::OC2M::write(pwm_mode);
-      Peripheral::CCR2::write(initial_duty);
+      detail::configure_channel<
+        typename Peripheral::CCER::CC2E,
+        typename Peripheral::CCER::CC2P,
+        typename Peripheral::CCMR1_Output::OC2M,
+        typename Peripheral::CCR2,
+        pwm_mode,
+        typename basic::polarity,
+        initial_duty>();
     }
     if constexpr (meta::mp_contains<channels, options::Channel<3>>::value) {
-      Peripheral::CCMR2_Output::OC3M::write(pwm_mode);
-      Peripheral::CCR3::write(initial_duty);
+      detail::configure_channel<
+        typename Peripheral::CCER::CC3E,
+        typename Peripheral::CCER::CC3P,
+        typename Peripheral::CCMR2_Output::OC3M,
+        typename Peripheral::CCR3,
+        pwm_mode,
+        typename basic::polarity,
+        initial_duty>();
     }
     if constexpr (meta::mp_contains<channels, options::Channel<4>>::value) {
-      Peripheral::CCMR2_Output::OC4M::write(pwm_mode);
-      Peripheral::CCR4::write(initial_duty);
+      detail::configure_channel<
+        typename Peripheral::CCER::CC4E,
+        typename Peripheral::CCER::CC4P,
+        typename Peripheral::CCMR2_Output::OC4M,
+        typename Peripheral::CCR4,
+        pwm_mode,
+        typename basic::polarity,
+        initial_duty>();
     }
 
     Peripheral::CNT::write(0);

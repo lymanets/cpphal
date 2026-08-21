@@ -160,6 +160,12 @@ timer:
         - ActiveHigh
         - ActiveLow
 
+    - name: polarity
+      kind: enum
+      tag: polarity
+      option_values:
+        - ActiveHigh
+        - ActiveLow
     - name: Events
       kind: varargs
       tag: Events
