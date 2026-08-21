@@ -76,8 +76,15 @@ static constexpr void configure_channel() {
   CCRx::write(Compare);
 }
 
-template <std::uint32_t Clock, std::uint32_t Frequency, class CounterType = std::uint16_t>
+template <class ClockConfig, class ClockTag, std::uint32_t Frequency, class CounterType = std::uint16_t>
 struct PrescalerARR {
+private:
+  using clock_sys                       = ClockConfig::OptionHolder::template get<rcc::tags::Sysclk>;
+  using clock_bus                       = ClockConfig::OptionHolder::template get<ClockTag>;
+  static constexpr auto m               = clock_bus::frequency == clock_sys::frequency ? 1 : 2;
+
+public:
+  static constexpr auto Clock = clock_bus::frequency * m;
   static constexpr std::uint32_t Divisor = Clock / Frequency;
 
 private:

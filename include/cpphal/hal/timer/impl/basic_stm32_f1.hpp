@@ -13,23 +13,18 @@ private:
 public:
   template <class ClockConfig>
   static void apply() {
-    using clock_sys                = ClockConfig::OptionHolder::template get<rcc::tags::Sysclk>;
-    using clock_bus                = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
-    constexpr auto m               = clock_bus::frequency == clock_sys::frequency ? 1 : 2;
-    constexpr auto timer_frequency = clock_bus::frequency * m;
-    constexpr auto auto_period     = !std::is_same_v<typename basic::auto_period, void>;
+    constexpr auto auto_period = !std::is_same_v<typename basic::auto_period, void>;
     Peripheral::CR1::CEN::reset();
-    using psc_arr = detail::PrescalerARR<timer_frequency,
-                                         basic::frequency::value>;
+    using psc_arr = detail::PrescalerARR<ClockConfig, typename Peripheral::clock_tag, basic::frequency::value>;
     static_assert(
-        timer_frequency % basic::frequency::value == 0 || auto_period,
+        psc_arr::Clock % basic::frequency::value == 0 || auto_period,
         "timer::Basic: Frequency<> must divide the timer clock exactly; "
         "enable AutoPeriod to automatically calculate PSC and ARR");
     static_assert(
         psc_arr::valid,
         "timer::Basic: requested frequency cannot be generated");
     if constexpr (auto_period) {
-      constexpr auto timer_freq = timer_frequency / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
+      constexpr auto timer_freq = psc_arr::Clock / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
       static_assert(timer_freq == basic::frequency::value,
                     "timer::Basic: Can not find prescaler and period");
 

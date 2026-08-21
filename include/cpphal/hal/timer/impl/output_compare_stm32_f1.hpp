@@ -56,17 +56,13 @@ private:
 public:
   template <class ClockConfig>
   static void apply() {
-    using clock_sys                = ClockConfig::OptionHolder::template get<rcc::tags::Sysclk>;
-    using clock_bus                = ClockConfig::OptionHolder::template get<typename Peripheral::clock_tag>;
-    constexpr auto m               = clock_bus::frequency == clock_sys::frequency ? 1 : 2;
-    constexpr auto timer_frequency = clock_bus::frequency * m;
-    using oc_mode                  = OutputCompareModeImpl<typename basic::oc_mode>;
+    using oc_mode = OutputCompareModeImpl<typename basic::oc_mode>;
 
     static_assert(
         oc_mode::valid,
         "timer::OutputCompare: invalid OC mode");
 
-    using psc_arr = detail::PrescalerARR<timer_frequency, basic::frequency::value>;
+    using psc_arr = detail::PrescalerARR<ClockConfig, typename Peripheral::clock_tag, basic::frequency::value>;
     static_assert(
         psc_arr::valid,
         "timer::OutputCompare: requested frequency cannot be generated exactly");
@@ -74,7 +70,7 @@ public:
         basic::initial_compare::value <= psc_arr::period,
         "timer::OutputCompare: initial compare exceeds timer period");
 
-    constexpr auto timer_freq = timer_frequency / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
+    constexpr auto timer_freq = psc_arr::Clock / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
 
     static_assert(
         timer_freq == basic::frequency::value,
