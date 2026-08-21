@@ -12,7 +12,7 @@ template <class Policy, class Peripheral, class Config>
 struct Basic {
 };
 
-template <class Policy, class Peripheral, class Config>
+template <class Policy, int Instance, class Config>
 struct Pwm {
 };
 

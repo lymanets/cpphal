@@ -30,9 +30,11 @@ struct PwmModeImpl<options::pwm_mode::ActiveLow> {
   static constexpr uint8_t value = 0b111;
 };
 
-template <class Peripheral, class Config>
-struct Pwm<mcu::policy::STM32F1Policy, Peripheral, Config> {
+template <int Instance, class Config>
+struct Pwm<mcu::policy::STM32F1Policy, Instance, Config> {
 private:
+  using instance_t = traits<tag<Instance>>;
+  using Peripheral = instance_t::peripheral;
   static inline uint32_t period = 0;
 
   using basic = PwmConfig<Peripheral, Config>;
@@ -77,10 +79,10 @@ public:
     static_assert(PwmModeImpl<typename basic::pwm_mode>::valid, "timer::Pwm: invalid PWM mode");
 
     Peripheral::CR1::CEN::reset();
-    using psc_arr               = PrescalerARR<timer_frequency, basic::frequency::value, true>;
+    using psc_arr = PrescalerARR<timer_frequency, basic::frequency::value, true>;
 
     constexpr auto initial_duty = (psc_arr::period * basic::initial_duty::value) / 100;
-    constexpr auto timer_freq = timer_frequency / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
+    constexpr auto timer_freq   = timer_frequency / ((psc_arr::prescaler + 1) * (psc_arr::period + 1));
 
     static_assert(timer_freq == basic::frequency::value,
                   "timer::Pwm: requested frequency cannot be generated exactly with PSC and ARR");
@@ -117,8 +119,8 @@ public:
     if (duty > 100) {
       return;
     }
-    static_assert(channel >= 1 && channel <= 4,
-                  "timer::Pwm: channel should be in range [1, 4]");
+    static_assert(channel >= 1 && channel <= instance_t::channels,
+                  "timer::Pwm: channel should be in range");
     static_assert(meta::mp_contains<channels, options::Channel<channel>>::value,
                   "timer::Pwm: channel is not configured");
 
@@ -136,8 +138,8 @@ public:
 
   template <int channel>
   static void start_channel() {
-    static_assert(channel >= 1 && channel <= 4,
-                  "timer::Pwm: channel should be in range [1, 4]");
+    static_assert(channel >= 1 && channel <= instance_t::channels,
+                  "timer::Pwm: channel should be in range");
     static_assert(meta::mp_contains<channels, options::Channel<channel>>::value,
                   "timer::Pwm: channel is not configured");
 
@@ -154,8 +156,8 @@ public:
 
   template <int channel>
   static void stop_channel() {
-    static_assert(channel >= 1 && channel <= 4,
-                  "timer::Pwm: channel should be in range [1, 4]");
+    static_assert(channel >= 1 && channel <= instance_t::channels,
+                  "timer::Pwm: channel should be in range");
     static_assert(meta::mp_contains<channels, options::Channel<channel>>::value,
                   "timer::Pwm: channel is not configured");
 

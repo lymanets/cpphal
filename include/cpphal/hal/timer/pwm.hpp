@@ -12,7 +12,7 @@ namespace hal::timer {
 template <int Instance, class Config>
 struct Pwm
     : core::ConfiguratorSingleBase<typename traits<tag<Instance>>::peripheral>,
-      impl::Pwm<mcu::policy::value, typename traits<tag<Instance>>::peripheral, Config> {
+      impl::Pwm<mcu::policy::value, Instance, Config> {
 private:
   using Peripheral = traits<tag<Instance>>::peripheral;
 
@@ -85,7 +85,7 @@ public:
         "timer::Pwm: frequency cannot be greater than timer clock"
         );
 
-    impl::Pwm<mcu::policy::value, typename traits<tag<Instance>>::peripheral, Config>::template apply<ClockConfig>();
+    impl::Pwm<mcu::policy::value, Instance, Config>::template apply<ClockConfig>();
   }
 };
 }
