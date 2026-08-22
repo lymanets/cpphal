@@ -66,7 +66,7 @@ public:
 
     if constexpr (ccer != 0) Peripheral::CCER::write(ccer);
     if constexpr (ccmr1 != 0) Peripheral::CCMR1_Output::write(ccmr1);
-    if constexpr (ccmr2 != 0) Peripheral::CCMR1_Output::write(ccmr2);
+    if constexpr (ccmr2 != 0) Peripheral::CCMR2_Output::write(ccmr2);
     if constexpr (ccr1 != 0) Peripheral::CCR1::write(ccr1);
     if constexpr (ccr2 != 0) Peripheral::CCR2::write(ccr2);
     if constexpr (ccr3 != 0) Peripheral::CCR3::write(ccr3);
