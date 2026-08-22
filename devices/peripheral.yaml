@@ -176,6 +176,7 @@ timer:
             - polarity
             - input_mapping
             - input_capture_prescaler
+            - input_capture_filter
 
     - name: output_compare_mode
       kind: enum
