@@ -153,13 +153,6 @@ timer:
       tag: Initial
       default: 50
 
-    - name: pwm_mode
-      kind: enum
-      tag: pwm_mode
-      option_values:
-        - ActiveHigh
-        - ActiveLow
-
     - name: polarity
       kind: enum
       tag: polarity
@@ -175,6 +168,8 @@ timer:
         - Active
         - Inactive
         - Toggle
+        - PwmActiveHigh
+        - PwmActiveLow
 
     - name: Events
       kind: varargs

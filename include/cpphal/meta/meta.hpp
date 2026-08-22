@@ -74,4 +74,8 @@ public:
 
 template <class List, class KeyFn = identity>
 using find_duplicates_t = typename find_duplicates<List, KeyFn>::type;
+
+
+template <class T, class... U>
+inline constexpr bool is_same_v = (std::is_same_v<T, U> || ...);
 }

@@ -12,13 +12,6 @@ struct OutputCompareModeImpl {
 };
 
 template <>
-struct OutputCompareModeImpl<void> {
-  // Default value
-  static constexpr bool    valid = true;
-  static constexpr uint8_t value = 0b000;
-};
-
-template <>
 struct OutputCompareModeImpl<options::output_compare_mode::Frozen> {
   static constexpr bool    valid = true;
   static constexpr uint8_t value = 0b000;
@@ -42,6 +35,18 @@ struct OutputCompareModeImpl<options::output_compare_mode::Toggle> {
   static constexpr uint8_t value = 0b011;
 };
 
+template <>
+struct OutputCompareModeImpl<options::output_compare_mode::PwmActiveHigh> {
+  static constexpr bool    valid = true;
+  static constexpr uint8_t value = 0b110;
+};
+
+template <>
+struct OutputCompareModeImpl<options::output_compare_mode::PwmActiveLow> {
+  static constexpr bool    valid = true;
+  static constexpr uint8_t value = 0b111;
+};
+
 template <int Instance, class Config>
 struct OutputCompare<mcu::policy::STM32F1Policy, Instance, Config> {
 private:
@@ -53,9 +58,15 @@ private:
 
   using channels = basic::channels;
 
-  template <class C>
+  template <auto P>
   struct CompareFn {
-    static constexpr auto value = C::value;
+    template <class C, class M>
+    struct fn {
+      static constexpr auto value = std::is_same_v<M, options::output_compare_mode::PwmActiveHigh> ||
+                                    std::is_same_v<M, options::output_compare_mode::PwmActiveLow>
+                                      ? (P * C::value) / 100
+                                      : C::value;
+    };
   };
 
 public:
@@ -88,7 +99,7 @@ public:
         typename detail::get_channel_t<channels, 1>::type,
         tags::output_compare_mode,
         OutputCompareModeImpl,
-        CompareFn>();
+        CompareFn<psc_arr::period>>();
     }
     if constexpr (detail::has_channel_t<channels, 2>::value) {
       detail::configure_channel<
@@ -99,7 +110,7 @@ public:
         typename detail::get_channel_t<channels, 2>::type,
         tags::output_compare_mode,
         OutputCompareModeImpl,
-        CompareFn>();
+        CompareFn<psc_arr::period>>();
     }
     if constexpr (detail::has_channel_t<channels, 3>::value) {
       detail::configure_channel<
@@ -110,7 +121,7 @@ public:
         typename detail::get_channel_t<channels, 3>::type,
         tags::output_compare_mode,
         OutputCompareModeImpl,
-        CompareFn>();
+        CompareFn<psc_arr::period>>();
     }
     if constexpr (detail::has_channel_t<channels, 4>::value) {
       detail::configure_channel<
@@ -121,7 +132,7 @@ public:
         typename detail::get_channel_t<channels, 4>::type,
         tags::output_compare_mode,
         OutputCompareModeImpl,
-        CompareFn>();
+        CompareFn<psc_arr::period>>();
     }
 
     Peripheral::CNT::write(0);
@@ -133,10 +144,36 @@ public:
 
   template <int channel>
   static void set_compare(uint16_t compare) {
+    static_assert(detail::has_channel_t<channels, channel>::value,
+                  "timer: channel is not configured");
+    using channel_t = typename detail::get_channel_t<channels, channel>::type;
+    using mode      = channel_t::template get<tags::output_compare_mode>;
+    static_assert(!meta::is_same_v<mode,
+                                  options::output_compare_mode::PwmActiveHigh,
+                                  options::output_compare_mode::PwmActiveLow>,
+                  "timer: channel is configured as PWM, use set_duty");
     // if (compare > period) {
     //   return;
     // }
     detail::set_compare<Peripheral, instance_t, channels, channel>(compare);
+  }
+
+  template <int channel>
+  static void set_duty(uint8_t duty) {
+    static_assert(detail::has_channel_t<channels, channel>::value,
+                  "timer: channel is not configured");
+    using channel_t = typename detail::get_channel_t<channels, channel>::type;
+    using mode      = channel_t::template get<tags::output_compare_mode>;
+    static_assert(meta::is_same_v<mode,
+                                  options::output_compare_mode::PwmActiveHigh,
+                                  options::output_compare_mode::PwmActiveLow>,
+                  "timer: channel is not configured as PWM");
+    if (duty > 100) {
+      return;
+    }
+
+    uint16_t ccr_value = (period * duty) / 100;
+    detail::set_compare<Peripheral, instance_t, channels, channel>(ccr_value);
   }
 
   template <int channel>

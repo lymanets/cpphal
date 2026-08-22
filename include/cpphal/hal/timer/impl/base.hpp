@@ -14,10 +14,6 @@ struct Basic {
 };
 
 template <class Policy, int Instance, class Config>
-struct Pwm {
-};
-
-template <class Policy, int Instance, class Config>
 struct OutputCompare {
 };
 
@@ -28,17 +24,6 @@ struct BasicConfig {
   using frequency   = Config::template get<tags::Frequency>;
   using auto_period = Config::template get<tags::AutoPeriod>;
 
-
-  using events  = core::resolve_events_t<Peripheral, typename Config::template get<tags::Events>>;
-  using enables = core::event_enable_bits_t<events>;
-};
-
-template <class Peripheral, class Config>
-struct PwmConfig {
-  using peripheral = Peripheral;
-
-  using frequency = Config::template get<tags::Frequency>;
-  using channels  = Config::template get_list<tags::ChannelConfig>;
 
   using events  = core::resolve_events_t<Peripheral, typename Config::template get<tags::Events>>;
   using enables = core::event_enable_bits_t<events>;
@@ -78,23 +63,24 @@ template <class CCxE, class CCxP, class OCxM, class CCRx,
           class Channel,
           class ModeTag,
           template <class> class ModeImpl,
-          template <class> class CompareFn>
+          class CompareFn>
 static constexpr void configure_channel() {
-  using mode     = ModeImpl<typename Channel::template get<ModeTag>>;
-  using polarity = typename Channel::template get<tags::polarity>;
-  using compare  = typename Channel::template get<tags::Initial>;
+  using mode      = typename Channel::template get<ModeTag>;
+  using mode_impl = ModeImpl<mode>;
+  using polarity  = typename Channel::template get<tags::polarity>;
+  using compare   = typename Channel::template get<tags::Initial>;
   static_assert(
-      mode::valid,
+      mode_impl::valid,
       "timer: invalid channel mode");
 
   CCxE::reset();
-  OCxM::write(mode::value);
+  OCxM::write(mode_impl::value);
   if constexpr (std::is_same_v<polarity, options::polarity::ActiveLow>) {
     CCxP::set();
   } else {
     CCxP::reset();
   }
-  CCRx::write(CompareFn<compare>::value);
+  CCRx::write(CompareFn::template fn<compare, mode>::value);
 }
 
 template <class ClockConfig, class ClockTag, std::uint32_t Frequency, class CounterType = std::uint16_t>
@@ -159,7 +145,7 @@ template <class Peripheral, class instance_t, class channels, int channel>
 static void start_channel() {
   static_assert(channel >= 1 && channel <= instance_t::channels,
                 "timer::OutputCompare: channel should be in range");
-  static_assert(detail::has_channel_t<channels, channel>::value,
+  static_assert(has_channel_t<channels, channel>::value,
                 "timer::OutputCompare: channel is not configured");
 
   if constexpr (channel == 1) {
@@ -177,7 +163,7 @@ template <class Peripheral, class instance_t, class channels, int channel>
 static void stop_channel() {
   static_assert(channel >= 1 && channel <= instance_t::channels,
                 "timer::OutputCompare: channel should be in range");
-  static_assert(detail::has_channel_t<channels, channel>::value,
+  static_assert(has_channel_t<channels, channel>::value,
                 "timer::OutputCompare: channel is not configured");
 
   if constexpr (channel == 1) {
