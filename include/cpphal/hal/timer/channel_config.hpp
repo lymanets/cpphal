@@ -60,6 +60,12 @@ public:
         meta::mp_transform_q<get_tag<tags::Channel>, options_t>,
         tags::Channel>::value == 1,
       "timer::Channel: Exactly one Channel<> must be specified.");
+
+  static_assert(
+      meta::mp_count<
+        meta::mp_transform_q<get_tag<tags::output_compare_mode>, options_t>,
+        tags::output_compare_mode>::value == 1,
+      "timer::Channel: Exactly one output_compare_mode must be specified.");
 };
 }
 }
