@@ -9,8 +9,8 @@ struct InputCaptureFilterImpl {
   static constexpr uint8_t value = 0;
 };
 
-template <class M>
-struct InputCaptureFilterImpl<M, void> {
+template <>
+struct InputCaptureFilterImpl<options::mode::Input, void> {
   // Default: NoFilter
   static constexpr bool    valid = true;
   static constexpr uint8_t value = 0b0000;
@@ -118,8 +118,8 @@ struct InputMappingImpl {
   static constexpr uint8_t value = 0;
 };
 
-template <class M>
-struct InputMappingImpl<M, void> {
+template <>
+struct InputMappingImpl<options::mode::Input, void> {
   // Default options::input_mapping::Direct
   static constexpr bool    valid = true;
   static constexpr uint8_t value = 0b01;
@@ -149,8 +149,8 @@ struct InputCapturePrescalerImpl {
   static constexpr uint8_t value = 0;
 };
 
-template <class M>
-struct InputCapturePrescalerImpl<M, void> {
+template <>
+struct InputCapturePrescalerImpl<options::mode::Input, void> {
   // Default options::input_capture_prescaler::EveryValidEdge
   static constexpr bool    valid = true;
   static constexpr uint8_t value = 0b00;

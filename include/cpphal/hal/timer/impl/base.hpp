@@ -162,7 +162,7 @@ struct make_ccmr_t<CCMROut, CCMRIn, oc_mode, mapping, prescaler, filter, 4> {
 };
 
 template <class T>
-struct validate_oc_mode_fn {
+struct oc_mode_fn {
   using mode = OutputCompareModeImpl<typename T::template get<tags::mode>,
                                      typename T::template get<tags::output_compare_mode>>;
   static_assert(
@@ -173,7 +173,7 @@ struct validate_oc_mode_fn {
 };
 
 template <class T>
-struct validate_input_mapping_fn {
+struct input_mapping_fn {
   using mode = InputMappingImpl<typename T::template get<tags::mode>,
                                 typename T::template get<tags::input_mapping>>;
   static_assert(
@@ -211,8 +211,8 @@ struct add_ccmr_t {
   using fn = std::integral_constant<uint32_t,
                                     State::value | make_ccmr_t<
                                       CCMROut, CCMRIn,
-                                      validate_oc_mode_fn<T>::value,
-                                      validate_input_mapping_fn<T>::value,
+                                      oc_mode_fn<T>::value,
+                                      input_mapping_fn<T>::value,
                                       input_capture_prescaler_fn<T>::value,
                                       input_capture_filter_fn<T>::value,
                                       T::template get<tags::Channel>::value
