@@ -3,6 +3,17 @@
 #include "meta/meta.hpp"
 
 namespace hal::core {
+template <class Tag>
+struct get_tag {
+  template <class T>
+  using fn = typename T::tag;
+};
+
+template <class Options, class Tag>
+struct get_option_count {
+  static constexpr bool value = meta::mp_count<meta::mp_transform_q<get_tag<Tag>, Options>, Tag>::value;
+};
+
 template <class... Options>
 struct OptionHolder {
 protected:

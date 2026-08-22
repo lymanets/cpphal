@@ -19,10 +19,7 @@ private:
 
 public:
   static_assert(
-      meta::mp_count<
-        meta::mp_transform_q<get_tag<tags::Frequency>, options_t>,
-        tags::Frequency>::value == 1,
+      core::get_option_count<options_t, tags::Frequency>::value == 1,
       "Exactly one Frequency<> must be specified.");
-
 };
 }

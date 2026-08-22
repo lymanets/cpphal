@@ -30,12 +30,6 @@ private:
   using options_t = typename core::OptionHolder<Options...>::options;
 
   template <class Tag>
-  struct get_tag {
-    template <class T>
-    using fn = typename T::tag;
-  };
-
-  template <class Tag>
   struct is_tag {
     template <class T>
     using fn = std::bool_constant<
@@ -50,21 +44,16 @@ private:
 
 public:
   static_assert(
-      meta::mp_count<
-        meta::mp_transform_q<get_tag<tags::Initial>, options_t>,
-        tags::Initial>::value == 1,
-      "timer::Channel: Exactly one Initial<> must be specified.");
+      core::get_option_count<options_t, tags::Initial>::value == 1,
+      "timer::Channel: Exactly one Initial<> must be specified."
+      );
 
   static_assert(
-      meta::mp_count<
-        meta::mp_transform_q<get_tag<tags::Channel>, options_t>,
-        tags::Channel>::value == 1,
+      core::get_option_count<options_t, tags::Channel>::value == 1,
       "timer::Channel: Exactly one Channel<> must be specified.");
 
   static_assert(
-      meta::mp_count<
-        meta::mp_transform_q<get_tag<tags::output_compare_mode>, options_t>,
-        tags::output_compare_mode>::value == 1,
+      core::get_option_count<options_t, tags::output_compare_mode>::value == 1,
       "timer::Channel: Exactly one output_compare_mode must be specified.");
 };
 }

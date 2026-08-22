@@ -6,7 +6,6 @@
 #include "hal/timer/options.hpp"
 
 namespace hal::timer::config {
-
 template <class... Options>
 struct OutputCompare : core::OptionHolder<Options...> {
 private:
@@ -16,12 +15,6 @@ private:
   struct get_channel_tag {
     template <class T>
     using fn = impl::channel_get<T, typename T::tag>::type;
-  };
-
-  template <class Tag>
-  struct get_tag {
-    template <class T>
-    using fn = typename T::tag;
   };
 
   template <class Tag>
@@ -39,9 +32,7 @@ private:
 
 public:
   static_assert(
-      meta::mp_count<
-        meta::mp_transform_q<get_tag<tags::Frequency>, options_t>,
-        tags::Frequency>::value == 1,
+      core::get_option_count<options_t, tags::Frequency>::value == 1,
       "timer::OutputCompare: Exactly one Frequency<> must be specified.");
 
   using NumberOfChannels = meta::mp_count<meta::mp_transform_q<get_channel_tag<tags::ChannelConfig>, options_t>,
