@@ -83,6 +83,169 @@ static constexpr void configure_channel() {
   CCRx::write(CompareFn::template fn<compare, mode>::value);
 }
 
+template <class T>
+struct OutputCompareModeImpl {
+  static constexpr bool    valid = false;
+  static constexpr uint8_t value = 0;
+};
+
+template <>
+struct OutputCompareModeImpl<options::output_compare_mode::Frozen> {
+  static constexpr bool    valid = true;
+  static constexpr uint8_t value = 0b000;
+};
+
+template <>
+struct OutputCompareModeImpl<options::output_compare_mode::Active> {
+  static constexpr bool    valid = true;
+  static constexpr uint8_t value = 0b001;
+};
+
+template <>
+struct OutputCompareModeImpl<options::output_compare_mode::Inactive> {
+  static constexpr bool    valid = true;
+  static constexpr uint8_t value = 0b010;
+};
+
+template <>
+struct OutputCompareModeImpl<options::output_compare_mode::Toggle> {
+  static constexpr bool    valid = true;
+  static constexpr uint8_t value = 0b011;
+};
+
+template <>
+struct OutputCompareModeImpl<options::output_compare_mode::PwmActiveHigh> {
+  static constexpr bool    valid = true;
+  static constexpr uint8_t value = 0b110;
+};
+
+template <>
+struct OutputCompareModeImpl<options::output_compare_mode::PwmActiveLow> {
+  static constexpr bool    valid = true;
+  static constexpr uint8_t value = 0b111;
+};
+
+template <class CCER, bool polarity, int channel>
+struct make_ccer_t {
+  static constexpr uint32_t value = 0;
+};
+
+template <class CCER, bool polarity>
+struct make_ccer_t<CCER, polarity, 1> {
+  static constexpr uint32_t value = CCER::CC1E::encode(0) | CCER::CC1P::encode(polarity);
+};
+
+template <class CCER, bool polarity>
+struct make_ccer_t<CCER, polarity, 2> {
+  static constexpr uint32_t value = CCER::CC2E::encode(0) | CCER::CC2P::encode(polarity);
+};
+
+template <class CCER, bool polarity>
+struct make_ccer_t<CCER, polarity, 3> {
+  static constexpr uint32_t value = CCER::CC3E::encode(0) | CCER::CC3P::encode(polarity);
+};
+
+template <class CCER, bool polarity>
+struct make_ccer_t<CCER, polarity, 4> {
+  static constexpr uint32_t value = CCER::CC4E::encode(0) | CCER::CC4P::encode(polarity);
+};
+
+template <class CCER>
+struct add_ccer_t {
+  template <class State, class T>
+  using fn = std::integral_constant<uint32_t,
+                                    State::value | make_ccer_t<
+                                      CCER,
+                                      std::is_same_v<
+                                        typename T::template get<tags::polarity>,
+                                        options::polarity::ActiveLow>,
+                                      T::template get<tags::Channel>::value
+                                    >::value>;
+};
+
+template <class CCMR, uint32_t mode, int channel>
+struct make_ccmr_t {
+  static constexpr uint32_t value = 0;
+};
+
+template <class CCMR, uint32_t mode>
+struct make_ccmr_t<CCMR, mode, 1> {
+  static constexpr uint32_t value = CCMR::OC1M::encode(mode);
+};
+
+template <class CCMR, uint32_t mode>
+struct make_ccmr_t<CCMR, mode, 2> {
+  static constexpr uint32_t value = CCMR::OC2M::encode(mode);
+};
+
+template <class CCMR, uint32_t mode>
+struct make_ccmr_t<CCMR, mode, 3> {
+  static constexpr uint32_t value = CCMR::OC3M::encode(mode);
+};
+
+template <class CCMR, uint32_t mode>
+struct make_ccmr_t<CCMR, mode, 4> {
+  static constexpr uint32_t value = CCMR::OC4M::encode(mode);
+};
+
+template <class T>
+struct validate_ccmr_fn {
+  using mode = OutputCompareModeImpl<typename T::template get<tags::output_compare_mode>>;
+  static_assert(
+      mode::valid,
+      "timer: invalid channel mode");
+
+  static constexpr uint32_t value = mode::value;
+};
+
+template <class CCMR>
+struct add_ccmr_t {
+  template <class State, class T>
+  using fn = std::integral_constant<uint32_t,
+                                    State::value | make_ccmr_t<
+                                      CCMR,
+                                      validate_ccmr_fn<T>::value,
+                                      T::template get<tags::Channel>::value
+                                    >::value>;
+};
+
+template <class channels, class CCER>
+static consteval uint32_t make_ccer() {
+  return meta::mp_fold_q<channels,
+                         std::integral_constant<uint32_t, 0>,
+                         add_ccer_t<CCER>>::value;
+}
+
+template <class List>
+struct ChannelFn {
+  template <class Entry>
+  using fn = meta::mp_contains<List,
+                               typename Entry::template get<tags::Channel>>;
+};
+
+template <class channels, class List, class CCMR>
+static consteval uint32_t make_ccmr() {
+  using valid_channels = meta::mp_filter_q<ChannelFn<List>, channels>;
+  using result         = meta::mp_fold_q<valid_channels,
+                                 std::integral_constant<uint32_t, 0>,
+                                 add_ccmr_t<CCMR>>;
+  return result::value;
+}
+
+template <class channels, class P, int channel>
+static consteval uint32_t make_ccr() {
+  using channel_t = typename get_channel_t<channels, channel>::type;
+  using mode      = OutputCompareModeImpl<typename channel_t::template get<tags::output_compare_mode>>;
+  using init      = typename channel_t::template get<tags::Initial>;
+  static_assert(
+      mode::valid,
+      "timer: invalid channel mode");
+  return std::is_same_v<mode, options::output_compare_mode::PwmActiveHigh> ||
+         std::is_same_v<mode, options::output_compare_mode::PwmActiveLow>
+           ? (P::period * init::value) / 100
+           : init::value;
+}
+
 template <class ClockConfig, class ClockTag, std::uint32_t Frequency, class CounterType = std::uint16_t>
 struct PrescalerARR {
 private:
