@@ -40,23 +40,25 @@ using OCTimer = hal::timer::OutputCompare<
     hal::timer::options::Frequency<20_kHz>,
     hal::timer::config::Channel<
       hal::timer::options::Channel<1>,
+      hal::timer::options::mode::Output,
       hal::timer::options::Initial<20>,
       hal::timer::options::output_compare_mode::PwmActiveHigh
     >,
     hal::timer::config::Channel<
       hal::timer::options::Channel<2>,
+      hal::timer::options::mode::Output,
       hal::timer::options::Initial<20>,
       hal::timer::options::output_compare_mode::PwmActiveHigh
     >,
     hal::timer::config::Channel<
       hal::timer::options::Channel<3>,
+      hal::timer::options::mode::Output,
       hal::timer::options::Initial<20>,
       hal::timer::options::output_compare_mode::Toggle
     >,
     hal::timer::config::Channel<
       hal::timer::options::Channel<4>,
-      hal::timer::options::Initial<20>,
-      hal::timer::options::output_compare_mode::Toggle
+      hal::timer::options::mode::Input
     >
   >
 >;

@@ -21,13 +21,41 @@ template <class T>
 struct channel_get<T, tags::ChannelConfig> {
   using type = typename T::template get<tags::Channel>::tag;
 };
+
+template <class options_t, class mode>
+struct validate_required_options {
+};
+
+template <class options_t>
+struct validate_required_options<options_t, options::mode::Output> {
+  static_assert(
+      core::get_option_count<options_t, tags::Initial>::value == 1,
+      "timer::Channel: Exactly one Initial<> must be specified."
+      );
+
+  static_assert(
+      core::get_option_count<options_t, tags::output_compare_mode>::value == 1,
+      "timer::Channel: Exactly one output_compare_mode must be specified.");
+};
+
+template <class options_t>
+struct validate_required_options<options_t, options::mode::Input> {
+};
 }
 
 namespace config {
 template <class... Options>
 struct Channel : core::OptionHolder<Options...>, Option<tags::ChannelConfig> {
 private:
-  using options_t = typename core::OptionHolder<Options...>::options;
+  using parent = core::OptionHolder<Options...>;
+
+  using options_t = typename parent::options;
+
+  template <class Mode>
+  using invalid_options_t = parent::template invalid_options<Mode, tags::mode>;
+
+  template <class Tag>
+  using get_t = parent::template get<Tag>;
 
   template <class Tag>
   struct is_tag {
@@ -44,8 +72,8 @@ private:
 
 public:
   static_assert(
-      core::get_option_count<options_t, tags::Initial>::value == 1,
-      "timer::Channel: Exactly one Initial<> must be specified."
+      core::get_option_count<options_t, tags::mode>::value == 1,
+      "timer::Channel: Exactly one mode must be specified."
       );
 
   static_assert(
@@ -53,8 +81,11 @@ public:
       "timer::Channel: Exactly one Channel<> must be specified.");
 
   static_assert(
-      core::get_option_count<options_t, tags::output_compare_mode>::value == 1,
-      "timer::Channel: Exactly one output_compare_mode must be specified.");
+      meta::mp_empty<invalid_options_t<get_t<tags::mode>>>::value,
+      "timer::Channel: option is not valid for selected channel mode"
+      );
+
+  using s = impl::validate_required_options<options_t, get_t<tags::mode>>;
 };
 }
 }

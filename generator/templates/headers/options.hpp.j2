@@ -17,7 +17,16 @@ struct {{ option.name }} : Option<tags::{{ option.tag }}> {
 {% if option.kind == "enum" %}
 namespace {{ option.name }} {
 {% for value in option.option_values %}
+{% if value is string %}
 struct {{ value }} : Option<tags::{{ option.tag }}> {
+{% else %}
+struct {{ value.name }} : Option<tags::{{ option.tag }}> {
+  using allowed_options = meta::mp_list<
+{% for allowed in value.allowed_options %}
+        tags::{{ allowed }}{{ "," if not loop.last }}
+{% endfor %}
+  >;
+{% endif %}
 };
 {% endfor %}
 }

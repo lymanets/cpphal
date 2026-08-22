@@ -52,10 +52,12 @@ public:
     constexpr auto ccer  = detail::make_ccer<channels, typename Peripheral::CCER>();
     constexpr auto ccmr1 = detail::make_ccmr<channels,
                                              meta::mp_list<options::Channel<1>, options::Channel<2>>,
-                                             typename Peripheral::CCMR1_Output>();
+                                             typename Peripheral::CCMR1_Output,
+                                             typename Peripheral::CCMR1_Input>();
     constexpr auto ccmr2 = detail::make_ccmr<channels,
                                              meta::mp_list<options::Channel<3>, options::Channel<4>>,
-                                             typename Peripheral::CCMR2_Output>();
+                                             typename Peripheral::CCMR2_Output,
+                                             typename Peripheral::CCMR2_Input>();
 
     constexpr auto ccr1 = detail::make_ccr<channels, psc_arr, 1>();
     constexpr auto ccr2 = detail::make_ccr<channels, psc_arr, 2>();
@@ -64,7 +66,7 @@ public:
 
     if constexpr (ccer != 0) Peripheral::CCER::write(ccer);
     if constexpr (ccmr1 != 0) Peripheral::CCMR1_Output::write(ccmr1);
-    if constexpr (ccmr2 != 0) Peripheral::CCMR2_Output::write(ccmr2);
+    if constexpr (ccmr2 != 0) Peripheral::CCMR1_Output::write(ccmr2);
     if constexpr (ccr1 != 0) Peripheral::CCR1::write(ccr1);
     if constexpr (ccr2 != 0) Peripheral::CCR2::write(ccr2);
     if constexpr (ccr3 != 0) Peripheral::CCR3::write(ccr3);

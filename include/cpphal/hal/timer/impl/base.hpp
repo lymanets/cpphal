@@ -4,6 +4,8 @@
 #include "hal/timer/options.hpp"
 #include "hal/timer/channel_config.hpp"
 
+#include "option_impl_stm32_f1.hpp"
+
 namespace hal::timer::impl {
 template <class Policy, Unit U>
 struct System {
@@ -83,48 +85,6 @@ static constexpr void configure_channel() {
   CCRx::write(CompareFn::template fn<compare, mode>::value);
 }
 
-template <class T>
-struct OutputCompareModeImpl {
-  static constexpr bool    valid = false;
-  static constexpr uint8_t value = 0;
-};
-
-template <>
-struct OutputCompareModeImpl<options::output_compare_mode::Frozen> {
-  static constexpr bool    valid = true;
-  static constexpr uint8_t value = 0b000;
-};
-
-template <>
-struct OutputCompareModeImpl<options::output_compare_mode::Active> {
-  static constexpr bool    valid = true;
-  static constexpr uint8_t value = 0b001;
-};
-
-template <>
-struct OutputCompareModeImpl<options::output_compare_mode::Inactive> {
-  static constexpr bool    valid = true;
-  static constexpr uint8_t value = 0b010;
-};
-
-template <>
-struct OutputCompareModeImpl<options::output_compare_mode::Toggle> {
-  static constexpr bool    valid = true;
-  static constexpr uint8_t value = 0b011;
-};
-
-template <>
-struct OutputCompareModeImpl<options::output_compare_mode::PwmActiveHigh> {
-  static constexpr bool    valid = true;
-  static constexpr uint8_t value = 0b110;
-};
-
-template <>
-struct OutputCompareModeImpl<options::output_compare_mode::PwmActiveLow> {
-  static constexpr bool    valid = true;
-  static constexpr uint8_t value = 0b111;
-};
-
 template <class CCER, bool polarity, int channel>
 struct make_ccer_t {
   static constexpr uint32_t value = 0;
@@ -163,48 +123,98 @@ struct add_ccer_t {
                                     >::value>;
 };
 
-template <class CCMR, uint32_t mode, int channel>
+template <class CCMROut, class CCMRIn, uint32_t oc_mode, uint32_t mapping, uint32_t prescaler, uint32_t filter, int
+          channel>
 struct make_ccmr_t {
   static constexpr uint32_t value = 0;
 };
 
-template <class CCMR, uint32_t mode>
-struct make_ccmr_t<CCMR, mode, 1> {
-  static constexpr uint32_t value = CCMR::OC1M::encode(mode);
+template <class CCMROut, class CCMRIn, uint32_t oc_mode, uint32_t mapping, uint32_t prescaler, uint32_t filter>
+struct make_ccmr_t<CCMROut, CCMRIn, oc_mode, mapping, prescaler, filter, 1> {
+  static constexpr uint32_t value = CCMROut::OC1M::encode(oc_mode) |
+                                    CCMROut::CC1S::encode(mapping) |
+                                    CCMRIn::IC1PSC::encode(prescaler) |
+                                    CCMRIn::IC1F::encode(filter);
 };
 
-template <class CCMR, uint32_t mode>
-struct make_ccmr_t<CCMR, mode, 2> {
-  static constexpr uint32_t value = CCMR::OC2M::encode(mode);
+template <class CCMROut, class CCMRIn, uint32_t oc_mode, uint32_t mapping, uint32_t prescaler, uint32_t filter>
+struct make_ccmr_t<CCMROut, CCMRIn, oc_mode, mapping, prescaler, filter, 2> {
+  static constexpr uint32_t value = CCMROut::OC2M::encode(oc_mode) |
+                                    CCMROut::CC2S::encode(mapping) |
+                                    CCMRIn::IC2PSC::encode(prescaler) |
+                                    CCMRIn::IC2F::encode(filter);
 };
 
-template <class CCMR, uint32_t mode>
-struct make_ccmr_t<CCMR, mode, 3> {
-  static constexpr uint32_t value = CCMR::OC3M::encode(mode);
+template <class CCMROut, class CCMRIn, uint32_t oc_mode, uint32_t mapping, uint32_t prescaler, uint32_t filter>
+struct make_ccmr_t<CCMROut, CCMRIn, oc_mode, mapping, prescaler, filter, 3> {
+  static constexpr uint32_t value = CCMROut::OC3M::encode(oc_mode) |
+                                    CCMROut::CC3S::encode(mapping) |
+                                    CCMRIn::IC3PSC::encode(prescaler) |
+                                    CCMRIn::IC3F::encode(filter);
 };
 
-template <class CCMR, uint32_t mode>
-struct make_ccmr_t<CCMR, mode, 4> {
-  static constexpr uint32_t value = CCMR::OC4M::encode(mode);
+template <class CCMROut, class CCMRIn, uint32_t oc_mode, uint32_t mapping, uint32_t prescaler, uint32_t filter>
+struct make_ccmr_t<CCMROut, CCMRIn, oc_mode, mapping, prescaler, filter, 4> {
+  static constexpr uint32_t value = CCMROut::OC4M::encode(oc_mode) |
+                                    CCMROut::CC4S::encode(mapping) |
+                                    CCMRIn::IC4PSC::encode(prescaler) |
+                                    CCMRIn::IC4F::encode(filter);
 };
 
 template <class T>
-struct validate_ccmr_fn {
-  using mode = OutputCompareModeImpl<typename T::template get<tags::output_compare_mode>>;
+struct validate_oc_mode_fn {
+  using mode = OutputCompareModeImpl<typename T::template get<tags::mode>,
+                                     typename T::template get<tags::output_compare_mode>>;
   static_assert(
       mode::valid,
-      "timer: invalid channel mode");
+      "timer: invalid channel output_compare_mode");
 
   static constexpr uint32_t value = mode::value;
 };
 
-template <class CCMR>
+template <class T>
+struct validate_input_mapping_fn {
+  using mode = InputMappingImpl<typename T::template get<tags::mode>,
+                                typename T::template get<tags::input_mapping>>;
+  static_assert(
+      mode::valid,
+      "timer: invalid channel input_mapping");
+
+  static constexpr uint32_t value = mode::value;
+};
+
+template <class T>
+struct input_capture_prescaler_fn {
+  using mode = InputCapturePrescalerImpl<typename T::template get<tags::mode>,
+                                         typename T::template get<tags::input_capture_prescaler>>;
+  static_assert(
+      mode::valid,
+      "timer: invalid channel input_capture_prescaler");
+
+  static constexpr uint32_t value = mode::value;
+};
+
+template <class T>
+struct input_capture_filter_fn {
+  using mode = InputCaptureFilterImpl<typename T::template get<tags::mode>,
+                                      typename T::template get<tags::input_capture_filter>>;
+  static_assert(
+      mode::valid,
+      "timer: invalid channel input_capture_filter");
+
+  static constexpr uint32_t value = mode::value;
+};
+
+template <class CCMROut, class CCMRIn>
 struct add_ccmr_t {
   template <class State, class T>
   using fn = std::integral_constant<uint32_t,
                                     State::value | make_ccmr_t<
-                                      CCMR,
-                                      validate_ccmr_fn<T>::value,
+                                      CCMROut, CCMRIn,
+                                      validate_oc_mode_fn<T>::value,
+                                      validate_input_mapping_fn<T>::value,
+                                      input_capture_prescaler_fn<T>::value,
+                                      input_capture_filter_fn<T>::value,
                                       T::template get<tags::Channel>::value
                                     >::value>;
 };
@@ -219,31 +229,60 @@ static consteval uint32_t make_ccer() {
 template <class List>
 struct ChannelFn {
   template <class Entry>
-  using fn = meta::mp_contains<List,
-                               typename Entry::template get<tags::Channel>>;
+  using fn = meta::mp_contains<List, typename Entry::template get<tags::Channel>>;
 };
 
-template <class channels, class List, class CCMR>
+template <class channels, class List, class CCMROut, class CCMRInt>
 static consteval uint32_t make_ccmr() {
   using valid_channels = meta::mp_filter_q<ChannelFn<List>, channels>;
   using result         = meta::mp_fold_q<valid_channels,
                                  std::integral_constant<uint32_t, 0>,
-                                 add_ccmr_t<CCMR>>;
+                                 add_ccmr_t<CCMROut, CCMRInt>>;
   return result::value;
 }
 
+template <class channel_t, class P, bool is_input>
+struct make_ccr_for_mode_t {
+  static consteval uint32_t impl() {
+    return 0;
+  }
+};
+
+template <class channel_t, class P>
+struct make_ccr_for_mode_t<channel_t, P, false> {
+  static consteval uint32_t impl() {
+    using mode    = typename channel_t::template get<tags::mode>;
+    using oc_mode = OutputCompareModeImpl<mode, typename channel_t::template get<tags::output_compare_mode>>;
+    using init    = typename channel_t::template get<tags::Initial>;
+    static_assert(
+        oc_mode::valid,
+        "timer: invalid channel output_compare_mode");
+    return std::is_same_v<mode, options::output_compare_mode::PwmActiveHigh> ||
+           std::is_same_v<mode, options::output_compare_mode::PwmActiveLow>
+             ? (P::period * init::value) / 100
+             : init::value;
+  }
+};
+
+template <class channels, class P, int channel, bool has_channel>
+struct make_ccr_t {
+  static consteval uint32_t impl() {
+    return 0;
+  }
+};
+
+template <class channels, class P, int channel>
+struct make_ccr_t<channels, P, channel, true> {
+  static consteval uint32_t impl() {
+    using channel_t         = typename get_channel_t<channels, channel>::type;
+    constexpr bool is_input = std::is_same_v<typename channel_t::template get<tags::mode>, options::mode::Input>;
+    return make_ccr_for_mode_t<channel_t, P, is_input>::impl();
+  }
+};
+
 template <class channels, class P, int channel>
 static consteval uint32_t make_ccr() {
-  using channel_t = typename get_channel_t<channels, channel>::type;
-  using mode      = OutputCompareModeImpl<typename channel_t::template get<tags::output_compare_mode>>;
-  using init      = typename channel_t::template get<tags::Initial>;
-  static_assert(
-      mode::valid,
-      "timer: invalid channel mode");
-  return std::is_same_v<mode, options::output_compare_mode::PwmActiveHigh> ||
-         std::is_same_v<mode, options::output_compare_mode::PwmActiveLow>
-           ? (P::period * init::value) / 100
-           : init::value;
+  return make_ccr_t<channels, P, channel, has_channel_t<channels, channel>::value>::impl();
 }
 
 template <class ClockConfig, class ClockTag, std::uint32_t Frequency, class CounterType = std::uint16_t>

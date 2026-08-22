@@ -160,6 +160,23 @@ timer:
         - ActiveHigh
         - ActiveLow
 
+    - name: mode
+      kind: enum
+      tag: mode
+      option_values:
+        - name: Output
+          allowed_options:
+            - Channel
+            - Initial
+            - polarity
+            - output_compare_mode
+        - name: Input
+          allowed_options:
+            - Channel
+            - polarity
+            - input_mapping
+            - input_capture_prescaler
+
     - name: output_compare_mode
       kind: enum
       tag: output_compare_mode
@@ -170,6 +187,44 @@ timer:
         - Toggle
         - PwmActiveHigh
         - PwmActiveLow
+
+    - name: input_mapping
+      kind: enum
+      tag: input_mapping
+      option_values:
+        - Direct
+        - Indirect
+        - TRC
+
+    - name: input_capture_prescaler
+      kind: enum
+      tag: input_capture_prescaler
+      option_values:
+        - EveryValidEdge
+        - Every2ndEdge
+        - Every4thEdge
+        - Every8thEdge
+
+    - name: input_capture_filter
+      kind: enum
+      tag: input_capture_filter
+      option_values:
+        - NoFilter       # No filter, sampling at fDTS
+        - FCKInt2        # fSAMPLING = fCK_INT, N = 2
+        - FCKInt4        # fSAMPLING = fCK_INT, N = 4
+        - FCKInt8        # fSAMPLING = fCK_INT, N = 8
+        - FDTS2_N6       # fSAMPLING = fDTS / 2, N = 6
+        - FDTS2_N8       # fSAMPLING = fDTS / 2, N = 8
+        - FDTS4_N6       # fSAMPLING = fDTS / 4, N = 6
+        - FDTS4_N8       # fSAMPLING = fDTS / 4, N = 8
+        - FDTS8_N6       # fSAMPLING = fDTS / 8, N = 6
+        - FDTS8_N8       # fSAMPLING = fDTS / 8, N = 8
+        - FDTS16_N5      # fSAMPLING = fDTS / 16, N = 5
+        - FDTS16_N6      # fSAMPLING = fDTS / 16, N = 6
+        - FDTS16_N8      # fSAMPLING = fDTS / 16, N = 8
+        - FDTS32_N5      # fSAMPLING = fDTS / 32, N = 5
+        - FDTS32_N6      # fSAMPLING = fDTS / 32, N = 6
+        - FDTS32_N8      # fSAMPLING = fDTS / 32, N = 8
 
     - name: Events
       kind: varargs

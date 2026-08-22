@@ -19,6 +19,24 @@ struct OptionHolder {
 protected:
   using options = meta::mp_list<Options...>;
 
+  template <class Mode, class ModeTag>
+  struct is_invalid_option {
+    template <class Option>
+    using fn = std::bool_constant<
+      !std::is_same_v<typename Option::tag, ModeTag> &&
+      !meta::mp_contains<
+        typename Mode::allowed_options,
+        typename Option::tag
+      >::value
+    >;
+  };
+
+  template <class Mode, class ModeTag>
+  using invalid_options = meta::mp_copy_if_q<
+    options,
+    is_invalid_option<Mode, ModeTag>
+  >;
+
   template <class Tag>
   struct has_tag {
     template <class T>
