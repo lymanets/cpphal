@@ -52,7 +52,7 @@ private:
 
   struct get_channel_number {
     template <class T>
-    using fn = T::template get<tags::Channel>::tag;
+    using fn = T::template get<tags::Channel>;
   };
 
   template <class Entry>
